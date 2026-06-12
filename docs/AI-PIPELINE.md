@@ -119,7 +119,7 @@ echo "volumes: absent"
 |---|---|
 | `inventory/README.md` หรือ app post-check | generic build result, image name pattern, status แบบไม่มี IP/ID/secret |
 | `_app-catalog.md` | สถานะ build |
-| `<app>.md` header tag | `[พร้อม build]` → `[built: standalone]` หรือ status ที่ไม่ผูก cluster |
+| `<app>.md` header tag | `[พร้อม build]` → `[built: standalone]` |
 | `build/tmp/<app>-build.env` | ลบทิ้งหลังจบงาน |
 
 ### Phase 3: เจอปัญหา
@@ -129,13 +129,12 @@ echo "volumes: absent"
 | ที่ | เก็บอะไร | ใช้ template |
 |---|---|---|
 | `problem/generic/` | วิธีแก้ generic (ใช้ `{placeholder}`) | `_template.md` |
-| `clusters/{name}/problem/` | เฉพาะปัญหาระหว่าง deploy/import เข้า cluster จริง | — |
 
 ---
 
 ## Part 2: Per-App Checklist
 
-### WordPress — พร้อม build / ต้อง verify cluster จริง
+### WordPress — พร้อม build
 
 | รายการ | ค่า |
 |---|---|
@@ -143,8 +142,8 @@ echo "volumes: absent"
 | Header tag | `[พร้อม build]` |
 | Base OS | Ubuntu 26.04 |
 | Docker images | `mariadb:lts`, `wordpress:php8.3-fpm`, `nginx:1.27` |
-| Build VM | `clusters/{name}/inventory/vm.md` หลังเติมข้อมูลจริง |
-| Build log | `clusters/{name}/problem/` หรือ cluster service doc หลัง build จริง |
+| Build VM | standalone build | ดู inventory หลัง build |
+| Build log | `problem/generic/` หรือ app errors log หลัง build |
 
 ### Nextcloud — ⚠️ รอ rebuild
 
@@ -235,9 +234,9 @@ if __name__ == "__main__":
     ssh_exec(HOST, USER, PASSWORD, commands, PORT)
 ```
 
-**วางไฟล์:** `clusters/{name}/ssh_helper.py` (gitignored)
+**วางไฟล์:** `build/tmp/ssh_helper.py` (gitignored)
 
-**กฎ:** SSH helper และค่าจริงของ `HOST`/`PASSWORD` ต้องอยู่ใน path private/gitignored เท่านั้น ห้าม commit password, temp IP ของ test VM, หรือ output ที่มี secret ลง domain docs
+**กฎ:** SSH helper และค่าจริงของ `HOST`/`PASSWORD` ต้องอยู่ใน path private/gitignored เท่านั้น ห้าม commit password, temp IP ของ test VM, หรือ output ที่มี secret
 
 ---
 

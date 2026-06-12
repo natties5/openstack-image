@@ -164,11 +164,11 @@ test ! -e /var/log/{app}-bootstrap.log
 ```bash
 # 1. Update header tag
 # File: build/apps/{app}/{app}.md
-# Change: [พร้อม build] → [built: {cluster}]
+# Change: [พร้อม build] → [built: standalone]
 
 # 2. Update catalog
 # File: build/_app-catalog.md
-# Change: "พร้อม build" → "built {cluster}"
+# Change: "พร้อม build" → "built standalone"
 
 # 3. Record in inventory
 # File: inventory/images/app-images.env
@@ -202,10 +202,6 @@ rm build/tmp/{app}-build.env
 2. **Is it a generic pattern?** → Create `problem/generic/{issue}.md`
    - Example: `problem/generic/docker-pull-timeout-proxy.md`
    - Use `problem/_template.md` as guide
-
-3. **Is it cluster-specific?** → Create `clusters/{name}/problem/{date}-{issue}.md`
-   - Example: `clusters/lab1/problem/2026-06-12-docker-pull-timeout.md`
-   - Include: IP, timestamp, commands run, error message, fix applied
 
 ---
 

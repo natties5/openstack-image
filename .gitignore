@@ -67,8 +67,6 @@ TODO.txt
 # SSH & Runtime
 *.conf.bak
 *.conf.orig
-/clusters/*/inventory/
-!/clusters/*/inventory/.gitkeep
 
 # ==============================================================================
 # WHITELIST — These files ARE tracked

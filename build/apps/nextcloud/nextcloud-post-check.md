@@ -141,9 +141,9 @@ docker compose -f /opt/nextcloud/docker-compose.yml logs --tail=40 nginx
 
 ## Latest Post-Test Results
 
-| Date | Cluster | Server | IP | Result |
-|---|---|---|---|---|
-| 2026-06-10 | production-korry-gate2 | `nextcloud-test` (916f8fab) | 203.154.16.48 | ✅ Pass (12/13) |
+| Date | Server | IP | Result |
+|---|---|---|---|
+| 2026-06-10 | `nextcloud-test` (916f8fab) | 203.154.16.48 | ✅ Pass (12/13) |
 | | | | | ⚠️ B3: `docker compose down` ต้อง `--profile http` — not a bug, fixed in docs |
 
 ---

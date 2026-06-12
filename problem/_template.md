@@ -1,6 +1,6 @@
 # <title>
 
-| Domain | <monitor/image/network/osa> |
+| Domain | <image> |
 | Date | YYYY-MM-DD |
 | Status | investigating / solved / known-issue |
 

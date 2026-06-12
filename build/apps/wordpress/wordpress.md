@@ -29,9 +29,9 @@
 | เช็ค | ได้จาก | ถ้ายังไม่พร้อม |
 |---|---|---|
 | Guest image Ubuntu 26.04 สร้างเสร็จแล้ว | `_guest-images.md` → Ubuntu 26.04 ✅ เสร็จ | ต้องสร้าง guest image ก่อน |
-| VM สร้างจาก guest image ที่ผ่าน Set 1-3 ครบ | cluster `inventory/vm.md` | สร้าง VM จาก guest image |
+| VM สร้างจาก guest image ที่ผ่าน Set 1-3 ครบ | standalone build | สร้าง VM จาก guest image |
 | Build guide พร้อม `[พร้อม build]` | header tag บน | ต้องสร้าง source files ก่อน |
-| SSH credentials | `clusters/{name}/.env` | — |
+| SSH credentials | `build/tmp/wordpress-build.env` (gitignored) | — |
 
 **เมื่อ SSH เข้า VM แล้ว — verify บน VM:**
 

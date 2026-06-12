@@ -7,10 +7,16 @@
 ```text
 openstack-image/
 │
+├── 📂 agents/                       [AI Agent Specs — Operational]
+│   ├── image-sleuth.md            (นักสืบ — วิจัย community, เขียน review)
+│   ├── image-engineer.md          (วิศวกร — ออกแบบ app, เขียน build guide)
+│   ├── image-maker.md             (ช่างทำ — SSH build, verify, บันทึก errors)
+│   └── image-scribe.md            (นักทำเอกสาร — อัปเดต docs, ลบ temp)
+│
 ├── 📂 docs/                          [Documentation Centralized]
 │   ├── README.md                    (Domain overview + quick start)
-│   ├── AGENT-SPEC.md                (Agent role + responsibilities)
-│   ├── AGENTS.md                    (Image-specific rules)
+│   ├── AGENT-SPEC.md                (Agent flow overview + links ไป 4 agents)
+│   ├── AGENTS.md                    (กติกากลาง — ทุก agent ต้องปฏิบัติตาม)
 │   ├── AI-PIPELINE.md               (Build pipeline framework)
 │   ├── DEPENDENCIES.md              (File dependency map)
 │   ├── ARCHITECTURE.md              (This file - visual structure)
@@ -95,8 +101,6 @@ openstack-image/
 │       ├── provider-interface-rename-cloud-init.md
 │       └── nextcloud-docker-install-wizard-after-bootstrap.md
 │
-├── 📂 clusters/                     [Cluster-Specific (Future) — Empty]
-│
 ├── 📄 Makefile                      [Automation Targets]
 ├── 📄 CONTRIBUTING.md               [Workflow Guide]
 ├── 📄 RESTRUCTURE_SUMMARY.md        [Restructure changelog]
@@ -118,7 +122,6 @@ openstack-image/
 | **inventory/images/** | Built image metadata (planned) | Post-build recording | Write after capture |
 | **inventory/** | Build config + inventory guide | Build automation | Read build.env |
 | **problem/generic/** | Generic troubleshooting docs | AI agents | Consult when debugging |
-| **clusters/** | Cluster-specific docs (future) | Cluster deployment phase | NOT image build phase |
 
 ---
 
@@ -154,26 +157,7 @@ Update:
   - DELETE build/tmp/{app}-build.env
 ```
 
-### 2️⃣ Cluster Deployment Phase (Cluster Domain)
-
-```
-[Image from Phase 1 is STANDALONE]
-     ↓
-Cluster ops reads clusters/{name}/.env + inventory/vm.md
-     ↓
-Import image → Glance (generic image)
-     ↓
-Create VM from image
-     ↓
-cloud-init runs bootstrap.service (auto-generate secrets)
-     ↓
-App up + running ✅
-     ↓
-Update: clusters/{name}/inventory/vm.md (IP, VM ID, etc.)
-```
-
-**Key:** Image build is **STANDALONE** — no cluster-specific data  
-Cluster data goes to **clusters/** folder, NOT image build docs
+**Key:** Image build is **standalone** — ไม่ผูก environment ใดๆ
 
 ---
 
@@ -181,13 +165,13 @@ Cluster data goes to **clusters/** folder, NOT image build docs
 
 | Folder | Owner | Read By | Write By |
 |---|---|---|---|
-| docs/ | AI agents | Everyone | AI agents + maintainers |
-| scripts/ | Build automation | User + AI | Maintainers |
-| build/apps/{app}/ | AI agents | AI + user | AI agents |
+| agents/ | All agents | All agents | All agents |
+| docs/ | นักทำเอกสาร | Everyone | นักทำเอกสาร + maintainers |
+| scripts/ | วิศวกร + ช่างทำ | User + agents | Maintainers |
+| build/apps/{app}/ | วิศวกร + ช่างทำ | All agents | วิศวกร + ช่างทำ + นักทำเอกสาร |
 | build/templates/ | Maintainers | New app creation | Maintainers |
-| inventory/images/ | Build automation | Cluster deployment | Build automation |
-| problem/generic/ | AI agents | Troubleshooting | AI agents |
-| clusters/ | Cluster ops | Cluster deployment | Cluster ops |
+| inventory/images/ | นักทำเอกสาร | Build review | นักทำเอกสาร |
+| problem/generic/ | ช่างทำ + นักทำเอกสาร | Troubleshooting | ช่างทำ + นักทำเอกสาร |
 
 ---
 
@@ -209,22 +193,18 @@ credentials.txt                     # credentials
 ## 🌳 Dependency Hierarchy (Read in Order)
 
 ```
-docs/README.md                      [START HERE]
+docs/AGENT-SPEC.md                [START HERE — Agent Flow]
     ↓
-    ├─ docs/AGENT-SPEC.md          (if AI agent)
-    ├─ docs/AGENTS.md              (if AI agent)
-    ├─ docs/AI-PIPELINE.md         (before building)
-    ├─ build/_app-catalog.md       (check app status)
-    ├─ build/apps/{app}/{app}.md   (per-app guide)
-    └─ docs/references/            (mirrors, cloud-init)
+    ├─ agents/image-sleuth.md      (if วิจัย)
+    ├─ agents/image-engineer.md    (if ออกแบบ)
+    ├─ agents/image-maker.md       (if build) → docs/AI-PIPELINE.md
+    └─ agents/image-scribe.md     (if อัปเดต docs) → docs/DEPENDENCIES.md
 
-docs/DEPENDENCIES.md                [IF UPDATING DOCS]
+docs/AGENTS.md                     [COMMON RULES — All agents must follow]
     ↓
-    Check: which files must I update together?
-
-problem/_template.md                 [WHEN TROUBLESHOOTING]
-    ↓
-    Create problem/generic/{issue}.md
+    ├─ docs/references/            (mirrors, cloud-init)
+    ├─ build/_app-catalog.md       (app status)
+    └─ build/apps/{app}/{app}.md   (per-app guide)
 ```
 
 ---
@@ -237,19 +217,32 @@ problem/_template.md                 [WHEN TROUBLESHOOTING]
 3. `build/apps/{app}/{app}.md` → Build guide
 4. Follow commands (copy-paste ready)
 
-### 🤖 **AI Agent (building image)**
-1. `docs/README.md` → Overview
-2. `docs/AGENT-SPEC.md` → Your role
-3. `docs/AGENTS.md` → Rules
-4. `docs/AI-PIPELINE.md` → Framework
-5. `build/_app-catalog.md` → Status
-6. `build/apps/{app}/{app}.md` → Per-app guide
+### 🤖 **นักสืบ (Research app)**
+1. `docs/AGENT-SPEC.md` → Agent flow overview
+2. `agents/image-sleuth.md` → นักสืบ spec
+3. `build/_app-catalog.md` → App status
+4. Search community (Reddit, StackOverflow, GitHub)
+5. Write `build/apps/{app}/{app}-review.md`
 
-### 🔧 **Cluster Ops (deploying image to cluster)**
-1. `docs/README.md` → Overview
-2. `inventory/images/*.env` → Image list (planned)
-3. `clusters/{name}/inventory/vm.md` → VM info
-4. Import image → Create VM → Done
+### 🏗️ **วิศวกร (Design app image)**
+1. `docs/AGENT-SPEC.md` → Agent flow overview
+2. `agents/image-engineer.md` → วิศวกร spec
+3. `build/apps/{app}/{app}-review.md` → Community research
+4. `docs/references/mirrors.md` → Mirror config
+5. Write `build/apps/{app}/{app}.md` + source files
+
+### 🔧 **ช่างทำ (Build on VM)**
+1. `docs/AGENT-SPEC.md` → Agent flow overview
+2. `agents/image-maker.md` → ช่างทำ spec
+3. `docs/AI-PIPELINE.md` → Build pipeline framework
+4. `build/apps/{app}/{app}.md` → Build guide
+5. SSH to VM → build → verify → record errors
+
+### 📝 **นักทำเอกสาร (Update docs)**
+1. `docs/AGENT-SPEC.md` → Agent flow overview
+2. `agents/image-scribe.md` → นักทำเอกสาร spec
+3. `docs/DEPENDENCIES.md` → Dependency map
+4. Update `_app-catalog.md`, `{app}.md`, `README.md`
 
 ### 🐛 **Troubleshooter (fixing build issues)**
 1. `docs/README.md` → Overview

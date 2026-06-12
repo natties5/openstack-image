@@ -19,11 +19,16 @@ OpenStack Image คือ domain รวมศูนย์สำหรับก�
 
 ```text
 openstack-image/
+├── agents/                    ← Agent Specs (สั่งงาน AI)
+│   ├── image-sleuth.md       (นักสืบ — วิจัย community, เขียน review)
+│   ├── image-engineer.md     (วิศวกร — ออกแบบ app, เขียน build guide)
+│   ├── image-maker.md        (ช่างทำ — SSH build, verify, บันทึก errors)
+│   └── image-scribe.md       (นักทำเอกสาร — อัปเดต docs, ลบ temp)
 ├── docs/                        ← Documentation (คุณอยู่ที่นี่)
 │   ├── README.md               (domain overview)
-│   ├── AGENT-SPEC.md           (agent role & responsibilities)
-│   ├── AGENTS.md               (image-specific rules & patterns)
-│   ├── AI-PIPELINE.md          (build pipeline framework)
+│   ├── AGENT-SPEC.md           (agent flow overview + links ไป 4 agents)
+│   ├── AGENTS.md               (กติกากลาง — ทุก agent ต้องปฏิบัติตาม)
+│   ├── AI-PIPELINE.md          (build pipeline framework — ช่างทำใช้หลัก)
 │   ├── DEPENDENCIES.md         (dependency map — ไฟล์ A ↔ ไฟล์ B)
 │   ├── ARCHITECTURE.md         (visual folder structure + purpose)
 │   ├── examples/               (ว่าง — สำหรับ step-by-step build examples ในอนาคต)
@@ -65,7 +70,6 @@ openstack-image/
 │   │   ├── nextcloud-docker-install-wizard-after-bootstrap.md
 │   │   └── provider-interface-rename-cloud-init.md
 │   └── _template.md            (template for new issues)
-├── clusters/                  ← Cluster-Specific (ว่าง — Future)
 ├── Makefile                   ← Automation Targets
 ├── CONTRIBUTING.md            ← Workflow Guide
 ├── .gitignore                 ← Updated for temp files
@@ -91,11 +95,16 @@ openstack-image/
 
 ### 1️⃣ **เอกสารหลัก** (Essential)
 - **`docs/README.md`** (คุณอยู่ที่นี่) — Domain overview, ประเภท image
-- **`docs/AGENT-SPEC.md`** — Agent role, scope, responsibilities, output format
-- **`docs/AGENTS.md`** — Image-specific rules (mirror, sed, cloud-init, package cache)
-- **`docs/AI-PIPELINE.md`** — Build pipeline framework (phases, pre-flight, post-build)
+- **`docs/AGENT-SPEC.md`** — Agent flow overview + links ไป 4 agent specs
+- **`docs/AGENTS.md`** — กติกากลาง (ทุก agent ต้องปฏิบัติตาม)
 
-### 2️⃣ **Reference**
+### 2️⃣ **Agent Specs** (เลือกตามหน้าที่)
+- **`agents/image-sleuth.md`** — นักสืบ: วิจัย community + เขียน review
+- **`agents/image-engineer.md`** — วิศวกร: ออกแบบ app + เขียน build guide
+- **`agents/image-maker.md`** — ช่างทำ: SSH build + verify + บันทึก errors
+- **`agents/image-scribe.md`** — นักทำเอกสาร: อัปเดต docs + ลบ temp
+
+### 3️⃣ **Reference**
 - **`docs/references/mirrors.md`** — Mirror availability matrix (TH mirrors)
 - **`docs/references/cloud-init-scenarios.md`** — User-data templates
 - **`docs/ARCHITECTURE.md`** — Visual folder structure + purpose explanation
@@ -142,8 +151,7 @@ openstack-image/
    → ลบ temp env file (build/tmp/{app}-build.env)
 
 6. Troubleshooting
-   → Generic issue → problem/generic/{issue}.md (reusable)
-   → Cluster-specific → clusters/{name}/problem/{date}-{issue}.md
+   → Generic issue → problem/generic/{issue}.md
 ```
 
 ---
@@ -194,7 +202,7 @@ build/apps/{app}/
 ## 📌 Rules & Policies
 
 ### Standalone Domain
-- Image build เป็น **standalone** ไม่ผูก cluster
+- Image build เป็น **standalone** ไม่ผูก environment ใดๆ
 - ห้ามบันทึก temp IP, server ID, floating IP, Glance ID ลง docs กลาง
 - ห้ามเก็บ password, token, private key, credentials
 - Temp env อยู่ใน `build/tmp/{app}-build.env` (gitignored, ลบหลังจบ)
@@ -221,10 +229,13 @@ Golden-image persistent:
 ## 🚀 Getting Started
 
 1. **หากเป็น AI agent — จุดเริ่มต้น:**
-   - `docs/AGENT-SPEC.md` — อ่านก่อน: role, scope, output format
-   - `docs/AGENTS.md` — อ่านรอง: build pipeline, mirror rules, dependency map
-   - `docs/AI-PIPELINE.md` — อ่านเมื่อต้อง build บน VM: phases, pre-flight, post-build
-   - `docs/DEPENDENCIES.md` — อ่านเมื่อแก้ไฟล์ที่มีผลกระทบต่อไฟล์อื่น
+   - `docs/AGENT-SPEC.md` — อ่านก่อน: agent flow + links ไป 4 agents
+   - `docs/AGENTS.md` — กติกากลาง (ทุก agent ต้องปฏิบัติตาม)
+   - เลือก agent ตามหน้าที่:
+     - วิจัย → `agents/image-sleuth.md`
+     - ออกแบบ → `agents/image-engineer.md`
+     - Build → `agents/image-maker.md` + `docs/AI-PIPELINE.md`
+     - อัปเดต docs → `agents/image-scribe.md` + `docs/DEPENDENCIES.md`
 
 2. **หาก user ต้องการสร้าง app image ใหม่:**
    - AI อ่าน `build/_app-catalog.md`
@@ -234,18 +245,7 @@ Golden-image persistent:
 
 3. **หากเจอปัญหา:**
    - บันทึกใน `problem/generic/` (reusable pattern)
-   - หรือ `clusters/{name}/problem/` (incident log เฉพาะ cluster)
-
----
-
-## 📞 Cross-Domain
-
-| Domain | ความสัมพันธ์ |
-|---|---|
-| **osa** | Glance service deploy/config → owner หลัก |
-| **network** | Guest network, VLAN, provider connectivity → owner หลัก |
-| **cluster** | VM, IP, endpoint, OpenStack deployment → reference |
-| **monitor** | Image metrics, monitoring → reference |
+   - หรือ `problem/generic/` (reusable pattern)
 
 ---
 

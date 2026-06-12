@@ -11,7 +11,6 @@
 | `build/_guest-images.md` (guest image status) | `docs/README.md` | Update status table | HIGH |
 | | `docs/AGENTS.md` (mirror matrix section) | If new OS or mirror discovered | MEDIUM |
 | `build/_app-catalog.md` (app status) | `docs/README.md` | Update status table | HIGH |
-| `build/apps/{app}/{app}.md` (build guide) | `build/_app-catalog.md` | Update header tag (e.g., `[พร้อม build]`) | HIGH |
 | `build/apps/{app}/{app}-review.md` | `build/_app-catalog.md` | Mark as "has review" if new | MEDIUM |
 | `docs/references/mirrors.md` (mirror config) | `docs/AGENTS.md` (mirror matrix section) | Update with new mirror info | HIGH |
 | | `build/_guest-images.md` (if mirror changed) | Update guest image build steps | MEDIUM |
@@ -20,11 +19,6 @@
 | | `build/_guest-images.md` (if cloud-init changed) | Update cloud-init usage in guest build | MEDIUM |
 | | `docs/README.md` (if structure changed) | Update cloud-init reference link | LOW |
 | `problem/generic/{issue}.md` (new generic issue) | `docs/README.md` | Add to troubleshooting section | LOW |
-| | (none auto-required) | Update when deploying to cluster | - |
-| **Cluster-specific files** | | | |
-| `clusters/{name}/inventory/vm.md` | `clusters/{name}/README.md` | Update VM count, status table | HIGH |
-| | (build docs NOT affected) | Keep image build standalone | - |
-| `clusters/{name}/problem/{issue}.md` | `clusters/{name}/README.md` | Reference incident log | MEDIUM |
 | **Folder structure changes** | | | |
 | Rename folder or create new domain | `docs/ARCHITECTURE.md` | Update folder tree | HIGH |
 | | `docs/README.md` | Update quick links | HIGH |
@@ -36,17 +30,21 @@
 
 | File | Used By | Purpose |
 |---|---|---|
+| `agents/image-sleuth.md` | นักสืบ | Community research |
+| `agents/image-engineer.md` | วิศวกร | Build guide + source design |
+| `agents/image-maker.md` | ช่างทำ | SSH build + verify + errors |
+| `agents/image-scribe.md` | นักทำเอกสาร | Doc updates + dependency check |
 | `docs/README.md` | **Entry point** — links to all other docs | Domain overview |
-| `docs/AGENT-SPEC.md` | AI agents | Role + responsibilities |
-| `docs/AGENTS.md` | AI agents | Image-specific rules |
+| `docs/AGENT-SPEC.md` | All agents | Agent flow overview + links |
+| `docs/AGENTS.md` | All agents | Common rules |
 | `docs/AI-PIPELINE.md` | Build automation | Pipeline framework |
 | `docs/references/mirrors.md` | `docs/AGENTS.md` + `build/_guest-images.md` | Mirror selection per OS |
 | `docs/references/cloud-init-scenarios.md` | `build/_guest-images.md` + app guides | Cloud-init templates |
 | `build/_guest-images.md` | Build automation | Guest image pipeline |
 | `build/_app-catalog.md` | `docs/README.md` + AI agents | App status overview |
-| `build/apps/{app}/{app}.md` | User + AI agents | Per-app build guide |
-| `build/apps/{app}/{app}-review.md` | User + AI agents | Feature selection |
-| `build/apps/{app}/{app}-errors.md` | AI agents | Error learning log |
+| `build/apps/{app}/{app}.md` | ช่างทำ + นักทำเอกสาร | Per-app build guide |
+| `build/apps/{app}/{app}-review.md` | นักสืบ + วิศวกร | Feature selection |
+| `build/apps/{app}/{app}-errors.md` | ช่างทำ + นักทำเอกสาร | Error learning log |
 | `scripts/templates/*.sh.tmpl` | *(planned — not yet created)* User + `Makefile` | Build automation |
 | `scripts/utils/*.py` | *(planned — not yet created)* Build automation | Pre-flight + validation |
 | `scripts/README.md` | *(planned — not yet created)* User | Scripts documentation |
@@ -81,7 +79,7 @@
 ### Scenario 2: Build App Image เสร็จ
 
 ```text
-1. Update build/apps/{app}/{app}.md (header tag: [พร้อม build] → [built: ...])
+1. Update build/apps/{app}/{app}.md (header tag: [พร้อม build] → [built: standalone])
    ↓
 2. Update build/_app-catalog.md (status: "พร้อม build" → "built แล้ว")
    ↓
@@ -117,32 +115,6 @@
 
 **Affected files:** 4-5 files  
 **Dependency chain:** Step 1 → 2 → 3, 4 (parallel) → 5
-
----
-
-### Scenario 4: Build บน Cluster จริง
-
-```text
-1. Pre-flight: Read clusters/{name}/inventory/vm.md + cluster/.env
-   ↓
-2. Run build per build/apps/{app}/{app}.md
-   ↓
-3. Update clusters/{name}/inventory/vm.md (add image name + Glance ID + VM info)
-   ↓
-4. Update clusters/{name}/README.md (add service to service table)
-   ↓
-5. (Optional) Create clusters/{name}/problem/{date}-{issue}.md (if issues found)
-   ↓
-6. Update build/_app-catalog.md (add cluster: {name})
-   ↓
-7. Update build/apps/{app}/{app}.md (header tag: [built: {cluster}])
-   ↓
-8. NOTE: build/apps/* docs stay STANDALONE (no IP/ID/secret)
-```
-
-**Affected files:** 5-7 files  
-**Dependency chain:** 1 → 2 → 3 → 4 → 6 → 7  
-**Important:** Cluster files are separate from build docs (keep standalone policy)
 
 ---
 
@@ -193,7 +165,6 @@ If any [ ] is empty → fix before commit!
 | `docs/references/` | ✅ มี | |
 | `inventory/images/` | ❌ ยังไม่มี | ต้องสร้าง subdirectory `images/` ก่อนใช้ |
 | `problem/generic/` | ✅ มี | nextcloud-docker-install-wizard-after-bootstrap.md, provider-interface-rename-cloud-init.md |
-| `clusters/` | ⚠️ มีแต่ว่างเปล่า | ยังไม่มี cluster ไฟล์ |
 | `scripts/templates/` | ⚠️ มีแต่ว่างเปล่า | *(planned)* จะใส่ `*.sh.tmpl` build templates |
 | `scripts/utils/` | ⚠️ มีแต่ว่างเปล่า | *(planned)* จะใส่ `*.py` pre-flight + validation |
 | `scripts/README.md` | ❌ ยังไม่มี | *(planned)* scripts documentation |
@@ -205,10 +176,15 @@ If any [ ] is empty → fix before commit!
 ```text
 Key files to check dependencies:
 
-- docs/README.md                    ← Central overview (many dependencies point here)
-- build/_app-catalog.md             ← App status (dependency point #2)
-- build/_guest-images.md            ← Guest image pipeline (dependency point #3)
-- docs/references/mirrors.md        ← Mirror config (dependency point for OS builds)
+- agents/image-sleuth.md             ← นักสืบ (community research → review.md)
+- agents/image-engineer.md           ← วิศวกร (design → build guide + source)
+- agents/image-maker.md              ← ช่างทำ (build → verify → errors)
+- agents/image-scribe.md             ← นักทำเอกสาร (update docs → delete temp)
+- docs/AGENT-SPEC.md                 ← Agent flow overview
+- docs/AGENTS.md                      ← Common rules (all agents)
+- build/_app-catalog.md               ← App status (dependency point #2)
+- build/_guest-images.md              ← Guest image pipeline (dependency point #3)
+- docs/references/mirrors.md           ← Mirror config (dependency point for OS builds)
 - docs/references/cloud-init-scenarios.md ← Cloud-init (dependency point for cloud-init changes)
 ```
 
