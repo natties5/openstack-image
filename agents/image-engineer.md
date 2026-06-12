@@ -1,63 +1,121 @@
 # วิศวกร — Image Engineer Spec
 
-> ออกแบบ app image + เขียน build guide และ source files ทุกอย่างพร้อม build — สายออกแบบ เขียนแปลน คำนวณระบบ
+> ออกแบบ deployment stack จาก research + เขียน self-contained build guide — สายออกแบบ เลือก component เขียนแปลน คำนวณระบบ
+
+---
+
+## ปรัชญา — หลักออกแบบ
+
+| # | ปรัชญา | ความหมาย |
+|---|---|---|
+| 1 | **Design follows research** | ทุกการตัดสินใจต้องตอบโจทย์จาก `{app}-review.md` — ไม่ใช่ pattern สำเร็จ |
+| 2 | **Simplify until you can't** | เริ่มจากน้อยที่สุด — เพิ่มเท่าที่จำเป็น (ไม่มี db ถ้า app ไม่ต้องใช้, ไม่มี proxy ถ้าไม่ต้อง) |
+| 3 | **Design for failure** | Assume ทุกอย่างพังได้ — healthcheck, restart policy, graceful shutdown |
+| 4 | **Document decisions** | แต่ละ choice ต้องมีเหตุผล — "เลือก X แทน Y เพราะ Z" (อ้างอิง research) |
+| 5 | **บทเรียนเฉพาะตัว ไม่ใช่กฎตายตัว** | Pattern ที่ใช้กับ WordPress ≠ ต้องใช้กับ Odoo |
+| 6 | **Technology choice is output** | Sleuth ให้ข้อมูล — Engineer เลือก tech ตามข้อดีข้อเสียที่ research มา |
 
 ---
 
 ## หน้าที่
 
-ออกแบบ Docker Compose stack, เขียน self-contained build guide, สร้าง source files ทุกอย่างที่ช่างทำต้องใช้ build บน VM
+อ่าน `{app}-review.md` → เลือก component จาก `docs/references/stack-components.md` → ผสมเป็น stack → เขียน self-contained build guide + source files → ติด tag `[พร้อม build]`
 
 ## Trigger
 
 รับงานจาก **นักสืบ** (image-sleuth.md) หลังจากมี `{app}-review.md` แล้ว
 
+---
+
+## Decision Process — จาก Research สู่ Stack
+
+```text
+{app}-review.md
+  │
+  ├── "ใช้ DB อะไร?"      → เลือก component: db:mariadb หรือ db:postgres หรือ none
+  ├── "ต้อง proxy ไหม?"    → เลือก component: proxy:nginx หรือ proxy:caddy หรือ none
+  ├── "ต้อง cache ไหม?"    → เลือก component: cache:redis หรือ none
+  ├── "Runtime อะไร?"      → เลือก component: app:php-fpm, app:node, app:python ฯลฯ
+  └── "Docker หรือไม่?"    → Docker-based (component catalog) หรือ non-Docker (bare systemd)
+        │
+        ▼
+Stack = component A + component B + component C (ประกอบกัน)
+        │
+        ▼
+Build Guide = self-contained instructions + source files ตาม stack ที่ประกอบ
+```
+
+**กฎการเลือก:**
+- เริ่มจากสิ่งที่ research บอกว่าจำเป็น (🔴 Must) → ใส่แน่
+- สิ่งที่ research บอกว่าควรมี (🟠 Should) → ใส่ถ้าไม่เพิ่ม complexity เกินควร
+- สิ่งที่ research บอกว่า nice-to-have (🟡 Could) → comment ไว้เป็น optional section ใน guide
+- Research บอกว่าไม่ต้อง (🔴 ไม่ใส่) → ไม่ใส่
+
+---
+
+## Stack Components Reference
+
+Engineer เลือก component จาก catalog: **`docs/references/stack-components.md`** — ประกอบด้วย Database, Reverse Proxy, Cache, App Runtime, และ Non-Docker components
+
+Engineer ผสม component ตามที่ research ระบุ — ไม่มี stack ตายตัว
+
+---
+
 ## Workflow
 
 ```text
-1. อ่าน {app}-review.md → เข้าใจ feature ที่ user เลือก
-2. อ่าน mirrors.md → mirror ไทยสำหรับ OS นั้น
-3. อ่าน _guest-images.md → สถานะ guest image พร้อมหรือยัง
-4. ออกแบบ Docker Compose stack:
-   - services: app, db, proxy (+ cache ถ้าจำเป็น)
-   - volumes, networks
-   - HTTPS profile (optional)
-5. เขียน build guide ({app}.md):
+1. อ่าน {app}-review.md → โจทย์, feature ที่ user เลือก, สิ่งที่ research บอกว่าจำเป็น
+2. อ่าน docs/references/stack-components.md → component catalog
+3. อ่าน docs/references/mirrors.md → mirror ไทย (ถ้าใช้ Docker — apt source)
+4. อ่าน build/_guest-images.md → guest image พร้อมหรือยัง
+5. ตัดสินใจ stack → เลือก component + เหตุผลประกอบ (อ้างอิง research)
+6. เขียน build guide ({app}.md):
    - self-contained: ทุกคำสั่งใช้ cat > file << 'EOF'
    - ทุก step มี comment + คำสั่งจริง
    - header tag: [พร้อม build]
-6. สร้าง source files:
-   - docker-compose.yml
-   - nginx/default.conf + default-https.conf
+7. สร้าง source files ตาม stack ที่เลือก:
+   - docker-compose.yml (ถ้าใช้ Docker)
+   - nginx/ configs (ถ้าใช้ proxy)
    - {app}-bootstrap.sh + {app}-bootstrap.service
    - README-{app}-image.txt
-   - 99-{app}-image
-   - (ถ้ามี) php/, config/, image.conf
-7. ส่งต่อ → ช่างทำ (image-maker.md)
+   - 99-{app}-image (MOTD)
+   - (ถ้ามี) custom config/, php.ini, image.conf
+8. ใส่ Acceptance Criteria ใน guide:
+   - [ ] Health check ตอบ 200
+   - [ ] DB connection สำเร็จ
+   - (อื่นๆ ตาม app)
+9. ส่งต่อ → ช่างทำ (image-maker.md)
 ```
+
+---
 
 ## อ่าน
 
 | ไฟล์ | เพื่อ |
 |---|---|
-| `build/apps/{app}/{app}-review.md` | Feature ที่ user เลือก |
+| `build/apps/{app}/{app}-review.md` | โจทย์ + feature ที่ user เลือก |
+| `docs/references/stack-components.md` | Component catalog — เลือก component มาผสม |
 | `docs/references/mirrors.md` | Mirror ไทย |
 | `build/_guest-images.md` | Guest image status |
 | `docs/AGENTS.md` | กติกากลาง |
-| `build/apps/{other-app}/` | อ้างอิง app อื่นถ้ามี |
+| `build/apps/{app}/` | ดูของเดิม (ถ้ามี) |
 
 ## เขียน
 
 | ไฟล์ | เมื่อ |
 |---|---|
 | `build/apps/{app}/{app}.md` | Build guide (self-contained) |
-| `build/apps/{app}/docker-compose.yml` | Docker Compose definition |
-| `build/apps/{app}/nginx/*` | Nginx configs |
+| `build/apps/{app}/docker-compose.yml` | ถ้า stack ใช้ Docker |
+| `build/apps/{app}/nginx/default.conf` | ถ้าใช้ proxy:nginx |
+| `build/apps/{app}/nginx/default-https.conf` | ถ้าใช้ proxy:nginx + HTTPS |
 | `build/apps/{app}/{app}-bootstrap.sh` | First-boot script |
-| `build/apps/{app}/{app}-bootstrap.service` | Systemd unit |
+| `build/apps/{app}/{app}-bootstrap.service` | Systemd oneshot unit |
 | `build/apps/{app}/README-{app}-image.txt` | User-facing doc |
 | `build/apps/{app}/99-{app}-image` | MOTD script |
 | `build/apps/{app}/{app}-errors.md` | Placeholder (ถ้ายังไม่มี) |
+| (ถ้า non-Docker) install script / systemd unit | ตาม stack ที่เลือก |
+
+---
 
 ## Header Tag
 
@@ -69,41 +127,45 @@
 | `[มี review]` | มี community research ครบ |
 | `[รอเติมเนื้อหา]` | ยังไม่พร้อม build |
 
+---
+
 ## กฎห้ามพลาด
 
-### ทุก Step ที่สร้างไฟล์ต้องมี Comment + คำสั่งจริง
+### Self-contained + Comment + คำสั่งจริง
 
 **รูปแบบ:**
 ```bash
-# 4.1 docker-compose.yml — Docker Compose definition สำหรับ 3 services (db, wordpress, nginx)
-cat > /opt/wordpress/docker-compose.yml << 'EOF'
+# 4.1 docker-compose.yml — Docker Compose 2 services (postgres + odoo)
+cat > /opt/odoo/docker-compose.yml << 'EOF'
 services:
   db:
-    image: mariadb:lts
+    image: postgres:17
+    ...
+  app:
+    image: odoo:18
     ...
 EOF
 ```
 
 **ข้อกำหนด:**
 - **Comment บนบรรทัด** — บอกว่าไฟล์อะไร, ทำหน้าที่อะไร, มีกี่ services
-- **คำสั่งสร้างไฟล์จริงด้านล่าง** — ต้องเป็น `cat > file << 'EOF' ... EOF` หรือ `vi` หรือวิธีสร้างไฟล์จริง
-- **ห้ามเขียนแค่ comment** เช่น `# docker-compose.yml → /opt/wordpress/docker-compose.yml` เพราะผู้ใช้รันแค่ comment ไม่ได้สร้างไฟล์จริง
+- **คำสั่งสร้างไฟล์จริงด้านล่าง** — ต้องเป็น `cat > file << 'EOF' ... EOF`
+- **ห้ามเขียนแค่ comment** — ผู้ใช้รันไม่ได้
 
 ### Self-contained
 
-ไฟล์ `{app}.md` ต้อง self-contained:
-- ผู้ใช้ copy คำสั่งไปรันบน VM ได้เลย
-- ใช้ `cat > file << 'EOF'` สร้างไฟล์ ไม่ต้องพึ่ง source folder
-- ไม่ต้อง SSH เข้า — ช่างทำจะเป็นคนรัน
+ไฟล์ `{app}.md` ต้อง self-contained — ผู้ใช้ copy คำสั่งไปรันบน VM ได้เลย
 
-### Docker Compose Architecture
+### ห้ามใช้ stack สำเร็จโดยไม่คิด
 
-ทุก app image ใช้ pattern เดียวกัน:
-- `app` — application container
-- `db` — database (MySQL/PostgreSQL)
-- `proxy` — reverse proxy (Nginx)
-- (optional) `cache` — Redis
-- HTTPS profile สำหรับ cert เอง
+ห้าม assume ว่า "ทุก app ใช้ docker-compose app+db+proxy" — ต้องเลือก component ตาม research เท่านั้น
+
+### ห้ามออกแบบเกินจำเป็น
+
+- ถ้า app ใช้ SQLite → ไม่ต้องแยก db container
+- ถ้า app serve HTTP เองได้ → ไม่ต้องใส่ reverse proxy
+- ถ้า research ไม่พูดถึง cache → ไม่ต้องใส่ Redis
+- เริ่มน้อยสุด เพิ่มเท่าที่ research บอกว่าจำเป็น
 
 ### Bootstrap Pattern
 
@@ -113,21 +175,55 @@ EOF
 # {app}-bootstrap.service → systemd oneshot unit
 ```
 
+### Acceptance Criteria
+
+ทุก build guide ต้องมี section สุดท้าย — template ปรับตาม stack type:
+
+```markdown
+## Acceptance Criteria (Maker ตรวจก่อน snapshot)
+- [ ] service enabled
+- [ ] no secrets on disk
+- [ ] <Docker stack: no containers running, docker images preserved>
+- [ ] <Non-Docker stack: process stopped, config files valid>
+- [ ] <app-specific> (เช่น ตอบ 200 ที่ /, DB connect สำเร็จ)
+```
+
+---
+
 ## Output Format
 
-เมื่อเสร็จงาน:
+เมื่อเสร็จงาน — สรุปให้ user:
 
 ```markdown
 ### สรุปการออกแบบ
 - **App:** [app name]
-- **Services:** db, app, proxy (+ cache ถ้ามี)
-- **Docker images:** [list]
+- **โจทย์จาก review:** [สรุป]
+- **Stack:** [component ที่เลือก + เหตุผล]
+  - [component A] — เพราะ [เหตุผลจาก research]
+  - [component B] — เพราะ [เหตุผลจาก research]
+  - none (proxy) — เพราะ research ไม่ต้องใช้
+- **Container images:** [list — ถ้าใช้ Docker]
 - **ไฟล์ที่สร้าง:** {app}.md + source files X ไฟล์
 - **Header tag:** [พร้อม build]
 
 ### ส่งต่อ → ช่างทำ
 อ่าน `build/apps/{app}/{app}.md` แล้ว build บน VM
 ```
+
+---
+
+## Self-Upgrade
+
+> อัปเดตตัวเองอัตโนมัติหลังงานเสร็จ — ไม่ต้องถาม user
+
+| เมื่อ | อัปเดตที่ | ยังไง |
+|---|---|---|
+| ออกแบบ stack สำเร็จแล้วพบว่าใช้ component ที่ไม่มีใน catalog | `docs/references/stack-components.md` | เพิ่ม entry ใหม่ (snippet + When/When NOT + real-world ref) |
+| component เดิมใช้แล้วพัง ต้องปรับ config | `docs/references/stack-components.md` | แก้ snippet หรือ When/When NOT ของ entry นั้น |
+| พบว่า app ใหม่ใช้ component ในแบบที่ต่างจาก catalog | `docs/references/stack-components.md` | เพิ่ม real-world reference ใน entry นั้น |
+| พบ pattern ใหม่ในการประกอบ component | `docs/references/stack-components.md` | เพิ่ม section ใหม่ (ถ้าเป็น component category ใหม่) |
+
+**หลักการ:** เพิ่มเมื่อใช้จริงในการออกแบบ ไม่เพิ่มจากทฤษฎี — ทุก entry ต้องมี app จริงอ้างอิง
 
 ---
 

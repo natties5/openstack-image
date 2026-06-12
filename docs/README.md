@@ -32,9 +32,10 @@ openstack-image/
 │   ├── DEPENDENCIES.md         (dependency map — ไฟล์ A ↔ ไฟล์ B)
 │   ├── ARCHITECTURE.md         (visual folder structure + purpose)
 │   ├── examples/               (ว่าง — สำหรับ step-by-step build examples ในอนาคต)
-│   └── references/             (mirrors, cloud-init templates)
+│   └── references/             (mirrors, cloud-init, stack components)
 │       ├── mirrors.md
-│       └── cloud-init-scenarios.md
+│       ├── cloud-init-scenarios.md
+│       └── stack-components.md
 ├── scripts/                    ← Automation & Tools
 │   ├── templates/              (ว่าง — shell script templates สำหรับ build)
 │   └── utils/                  (ว่าง — reusable utilities)
@@ -106,6 +107,7 @@ openstack-image/
 
 ### 3️⃣ **Reference**
 - **`docs/references/mirrors.md`** — Mirror availability matrix (TH mirrors)
+- **`docs/references/stack-components.md`** — Stack component catalog (DB, Proxy, Cache, Runtime)
 - **`docs/references/cloud-init-scenarios.md`** — User-data templates
 - **`docs/ARCHITECTURE.md`** — Visual folder structure + purpose explanation
 - **`docs/DEPENDENCIES.md`** — Dependency map (ถ้าแก้ไฟล์ A ต้องอัปเดต B)
@@ -130,25 +132,33 @@ openstack-image/
 
 ```
 1. User บอก requirement
-   → AI อ่าน build/_app-catalog.md + app specific guide
+   → AI ปรึกษากับ user (Step 0: Clarify User Intent)
    → ประมวลความต้องการ + แนะนำ approach
 
-2. AI สร้าง <app>-review.md
+2. AI สร้าง {app}-review.md
    → Community research (Reddit, StackOverflow, GitHub)
-   → Best practices + beginner/intermediate/advanced recommendations
+   → 5 ขั้น: Clarify → Search → Score → Competitive → Pitfalls → Production Gaps
+   → Self-Upgrade: queries / scoring ถ้าเจอวิธีใหม่
 
-3. User เลือก features
+3. User เลือก features + deployment strategy
+   → AI เลือก component จาก stack-components.md → ผสมเป็น stack
    → AI สร้าง/อัปเดต build/apps/{app}/{app}.md
    → Self-contained guide: copy-paste commands ได้เลยบน VM
+   → Self-Upgrade: stack-components.md ถ้าพบ component ใหม่
 
 4. ระหว่าง build
-   → ถ้า AI สั่งผิด → บันทึกใน build/apps/{app}/{app}-errors.md
+   → Maker รัน guide ทีละขั้น — verify ทุกคำสั่ง
+   → ถ้าสั่งผิด → บันทึกใน build/apps/{app}/{app}-errors.md
    → คำสั่ง + fix + root cause
+   → Self-Upgrade: mirror matrix / cloud-init ถ้าเจอ behavior ใหม่
 
 5. หลัง build เสร็จ
-   → อัปเดต build/_app-catalog.md (status)
+   → Scribe อัปเดต build/_app-catalog.md (status)
    → อัปเดต build/apps/{app}/{app}.md (header tag: [built: ...])
+   → Backfill Lessons Learned → {app}-review.md
+   → อัปเดต stack-components.md ถ้าพบ component ใหม่
    → ลบ temp env file (build/tmp/{app}-build.env)
+   → Self-Upgrade: DEPENDENCIES.md ถ้าพบ dependency ใหม่
 
 6. Troubleshooting
    → Generic issue → problem/generic/{issue}.md
@@ -164,10 +174,10 @@ build/apps/{app}/
 ├── {app}-review.md            ← Community research (not AI test scenario)
 ├── {app}-errors.md            ← AI mistakes log (commands that failed + fixes)
 ├── {app}-post-check.md        ← Post-check checklist (optional)
-├── docker-compose.yml          ← Source file (reference)
+├── docker-compose.yml          ← Source file (ถ้าใช้ Docker)
 ├── {app}-bootstrap.sh          ← First-boot script (generates secrets, starts app)
 ├── {app}-bootstrap.service     ← systemd oneshot unit
-├── nginx/
+├── nginx/                      ← (ถ้าใช้ proxy)
 │   ├── default.conf           ← HTTP config
 │   └── default-https.conf     ← HTTPS config
 ├── php/ (if applicable)
@@ -254,6 +264,7 @@ Golden-image persistent:
 - **Agent Spec:** `docs/AGENT-SPEC.md`
 - **Build Pipeline:** `docs/AI-PIPELINE.md`
 - **Mirror Config:** `docs/references/mirrors.md`
+- **Stack Components:** `docs/references/stack-components.md`
 - **Troubleshooting:** `problem/`
 - **Automation:** `scripts/` + `Makefile`
 

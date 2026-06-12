@@ -13,15 +13,19 @@ User: "สร้าง X image"
   ▼
 1. นักสืบ (Sleuth) ─── วิจัย community → เขียน {app}-review.md
   │                          → spec: agents/image-sleuth.md
+  │                          → self-upgrade: queries + scoring
   ▼
 2. วิศวกร (Engineer) ── ออกแบบ stack → เขียน {app}.md + source
   │                          → spec: agents/image-engineer.md
+  │                          → self-upgrade: stack-components.md
   ▼
 3. ช่างทำ (Maker) ────── SSH build → verify → บันทึก errors
   │                          → spec: agents/image-maker.md
+  │                          → self-upgrade: mirror matrix + cloud-init
   ▼
-4. นักทำเอกสาร (Scribe) ─ อัปเดต docs → ลบ temp → จบ
+4. นักทำเอกสาร (Scribe) ─ อัปเดต docs → ปิด loop → ลบ temp → จบ
                                → spec: agents/image-scribe.md
+                               → self-upgrade: dependency map
 ```
 
 ถ้า `{app}-review.md` มีอยู่และเนื้อหายังใช้ได้ → ข้ามนักสืบ เริ่มที่วิศวกรเลย
@@ -35,8 +39,8 @@ build/apps/<app>/
 ├── <app>.md              ← ไฟล์ 1: Build guide — self-contained, ทำตามขั้นตอน
 ├── <app>-review.md       ← ไฟล์ 2: Community research — ผู้ใช้ต้องการอะไร, best practice
 ├── <app>-errors.md       ← ไฟล์ 3: AI mistakes log — คำสั่ง AI ที่ผิด, แก้ยังไง
-├── docker-compose.yml    ← source files (ถ้ามี)
-├── nginx/
+├── docker-compose.yml    ← source files (ถ้าใช้ Docker)
+├── nginx/                ← (ถ้าใช้ proxy)
 ├── bootstrap.sh
 ├── bootstrap.service
 ├── README-<app>-image.txt
@@ -94,14 +98,15 @@ build/apps/<app>/
 
 | เอกสาร | หน้าที่ |
 |---|---|
-| [`docs/AGENT-SPEC.md`](AGENT-SPEC.md) | Overview — agent flow + links ไป 4 agent specs |
+| [`docs/AGENT-SPEC.md`](AGENT-SPEC.md) | Overview — agent flow + links + cross-ownership + self-upgrade |
 | [`agents/image-sleuth.md`](../agents/image-sleuth.md) | นักสืบ — วิจัย + เขียน review |
 | [`agents/image-engineer.md`](../agents/image-engineer.md) | วิศวกร — ออกแบบ + เขียน guide |
 | [`agents/image-maker.md`](../agents/image-maker.md) | ช่างทำ — build + verify |
-| [`agents/image-scribe.md`](../agents/image-scribe.md) | นักทำเอกสาร — อัปเดต docs |
+| [`agents/image-scribe.md`](../agents/image-scribe.md) | นักทำเอกสาร — อัปเดต docs + ปิด loop |
 | [`docs/AI-PIPELINE.md`](AI-PIPELINE.md) | Build pipeline framework (ช่างทำใช้หลัก) |
 | [`docs/DEPENDENCIES.md`](DEPENDENCIES.md) | ไฟล์ไหนต้องอัปเดตพร้อมกัน (นักทำเอกสารใช้หลัก) |
 | [`docs/references/mirrors.md`](references/mirrors.md) | Mirror ไทย (ช่างทำใช้) |
+| [`docs/references/stack-components.md`](references/stack-components.md) | Component catalog (วิศวกรใช้หลัก) |
 | [`build/_app-catalog.md`](../build/_app-catalog.md) | สถานะ app ปัจจุบัน |
 
 ---
