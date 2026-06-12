@@ -1,0 +1,13 @@
+#!/bin/bash
+echo ""
+echo "  WordPress Docker — Ubuntu 26.04"
+echo "  ================================"
+echo "  Setup:    http://<YOUR-VM-IP>"
+echo "  Creds:    /root/wordpress-credentials.txt"
+echo "  Dir:      /opt/wordpress"
+echo "  Manage:   cd /opt/wordpress && docker compose ps"
+if [ -f /opt/wordpress/.env ] && grep -q "^DOMAIN=" /opt/wordpress/.env 2>/dev/null; then
+    DOMAIN=$(grep "^DOMAIN=" /opt/wordpress/.env | cut -d= -f2)
+    echo "  HTTPS:    https://${DOMAIN}"
+fi
+echo ""
