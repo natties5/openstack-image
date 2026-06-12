@@ -28,10 +28,10 @@ Nextcloud container อาจขึ้นครบและ HTTP ตอบ `200/
 
 ## Reference
 
-- Source bootstrap: `image/build/nextcloud/nextcloud-bootstrap.sh`
-- Build guide: `image/build/nextcloud/nextcloud.md`
-- Post-check: `image/build/nextcloud/nextcloud-post-check.md`
-- Error log: `image/build/nextcloud/nextcloud-errors.md`
+- Source bootstrap: `build/apps/nextcloud/nextcloud-bootstrap.sh`
+- Build guide: `build/apps/nextcloud/nextcloud.md`
+- Post-check: `build/apps/nextcloud/nextcloud-post-check.md`
+- Error log: `build/apps/nextcloud/nextcloud-errors.md`
 
 ## Verify
 

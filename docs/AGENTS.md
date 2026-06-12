@@ -41,7 +41,7 @@
 ## โครงสร้าง 1 App = 1 Folder
 
 ```text
-build/<app>/
+build/apps/<app>/
 ├── <app>.md              ← ไฟล์ 1: Build guide — self-contained, ทำตามขั้นตอน
 ├── <app>-review.md       ← ไฟล์ 2: Community research — ผู้ใช้ต้องการอะไร, best practice
 ├── <app>-errors.md       ← ไฟล์ 3: AI mistakes log — คำสั่ง AI ที่ผิด, แก้ยังไง
@@ -57,7 +57,7 @@ build/<app>/
 - ไฟล์ 1 (`<app>.md`) — self-contained: ผู้ใช้ copy คำสั่งไปรันบน VM ได้เลย ใช้ `cat > file << 'EOF'` สร้างไฟล์ ไม่ต้องพึ่ง source folder
 - ไฟล์ 2 (`<app>-review.md`) — community research: ห้ามเป็น AI test scenario ตัวเอง ต้องอ้างอิงจาก community จริง
 - ไฟล์ 3 (`<app>-errors.md`) — log คำสั่งผิดของ AI: เก็บทุกครั้งที่ AI ให้คำสั่งแล้วพัง
-- Source folder (`build/<app>/`) — ใช้ reference: agent อ่านไฟล์แยกได้, ใช้ตรวจสอบตอน build
+- Source folder (`build/apps/<app>/`) — ใช้ reference: agent อ่านไฟล์แยกได้, ใช้ตรวจสอบตอน build
 
 ## Header Tag สถานะ
 
@@ -183,7 +183,7 @@ EOF
 | openSUSE Leap 16.0 | `zypper mr` + `zypper ar` | ❌ ไม่ต้อง | `mirror1.ku.ac.th/opensuse/` (ต้อง verify) |
 | Fedora 44 | TBD | ❌ ไม่ต้อง | metalink (default) — ไม่มี mirror ไทย |
 
-`image/references/mirrors.md` คือ source of truth เรื่อง mirror ปัจจุบัน ถ้าไฟล์ build ใดขัดกันให้แก้ตามไฟล์นั้นก่อน
+`docs/references/mirrors.md` คือ source of truth เรื่อง mirror ปัจจุบัน ถ้าไฟล์ build ใดขัดกันให้แก้ตามไฟล์นั้นก่อน
 
 ## Dependency Map — แก้ไฟล์ A ต้องอัปเดตไฟล์ B
 
@@ -191,17 +191,17 @@ EOF
 
 | ถ้าแก้/สร้าง | ต้องอัปเดต |
 |---|---|
-| สร้าง app ใหม่ (`build/<app>/`) | `_app-catalog.md`, `image/README.md` |
+| สร้าง app ใหม่ (`build/apps/<app>/`) | `_app-catalog.md`, `docs/README.md` |
 | build app image เสร็จ | `_app-catalog.md` (เปลี่ยนสถานะ), `<app>.md` (header tag) |
 | build guest image เสร็จ | `_guest-images.md` (เปลี่ยนสถานะ) |
 | แก้ mirror (`references/mirrors.md`) | AGENTS.md (mirror matrix section), `_guest-images.md` |
 | พบ cloud-init behavior ใหม่ | `references/cloud-init-scenarios.md`, AGENTS.md (cloud-init section), `_guest-images.md` |
 | build app image บน cluster จริง | `clusters/{name}/inventory/vm.md`, `clusters/{name}/README.md`, `_app-catalog.md`, `<app>.md` |
 | สร้าง app image เสร็จ (capture แล้ว) | `clusters/{name}/inventory/vm.md` (image name, Glance ID), `clusters/{name}/README.md` (service table) |
-| เจอปัญหาใหม่ระหว่าง build | `image/problem/` (generic, {placeholder}) + `clusters/{name}/problem/` (incident log, IP จริง, timestamp) |
-| เจอปัญหาใหม่ (generic) | `problem/` — ใช้ `_template.md` |
-| เปลี่ยนโครงสร้าง folder | `image/README.md` |
-| เพิ่ม/แก้ reference | `image/README.md` (tree / index)
+| เจอปัญหาใหม่ระหว่าง build | `problem/` (generic, {placeholder}) + `clusters/{name}/problem/` (incident log, IP จริง, timestamp) |
+| เจอปัญหาใหม่ (generic) | `problem/generic/` — ใช้ `problem/_template.md` |
+| เปลี่ยนโครงสร้าง folder | `docs/README.md` |
+| เพิ่ม/แก้ reference | `docs/README.md` (tree / index)
 
 ---
 
@@ -253,10 +253,10 @@ EOF
 
 ### เจอปัญหาระหว่าง build — บันทึก 2 ที่เสมอ
 
-1. **`image/problem/`** — วิธีแก้ generic ใช้ `{placeholder}`, ไม่มี IP จริง
-   - ใช้ template จาก `image/problem/_template.md`
+1. **`problem/generic/`** — วิธีแก้ generic ใช้ `{placeholder}`, ไม่มี IP จริง
+   - ใช้ template จาก `problem/_template.md`
 2. **`clusters/{name}/problem/`** — incident log: เกิดอะไรกับ cluster นี้, IP จริง, timestamp, แก้ยังไง
 
 **ตัวอย่าง:** Docker ล้มเหลวตอน pull image
-- `image/problem/docker-pull-failed-proxy.md` → generic solution
+- `problem/generic/docker-pull-failed-proxy.md` → generic solution
 - `clusters/{name}/problem/2026-06-06-docker-pull-failed.md` → IP จริง, คำสั่งที่รัน, error message

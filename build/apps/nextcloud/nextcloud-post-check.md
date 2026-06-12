@@ -9,7 +9,7 @@
 
 ใช้เช็คว่า image ที่ capture แล้ว boot เป็น VM ใหม่ได้จริง และ Nextcloud ถูกติดตั้งเสร็จ ไม่ค้างที่ install wizard
 
-ค่าจริงของรอบ test ให้มาจาก user หรือ `image/tmp/nextcloud-build.env` เท่านั้น ห้าม commit ลงเอกสารกลาง
+ค่าจริงของรอบ test ให้มาจาก user หรือ `build/tmp/nextcloud-build.env` เท่านั้น ห้าม commit ลงเอกสารกลาง
 
 ---
 
@@ -177,4 +177,4 @@ find /var/lib/nextcloud -mindepth 2 -maxdepth 2 -print -quit | grep -q . || echo
 2. SSH เข้า `[nextcloud-test-vm]`
 3. รันคำสั่งในหัวข้อ Post-Check ทีละข้อ
 4. อัปเดต `Success Criteria` เป็น `✅ pass` หรือ `❌ fail` ใน incident/post-test note เฉพาะรอบนั้น
-5. ถ้า fail ให้บันทึกใน `image/problem/` โดยไม่ใส่ secret/temp IP
+5. ถ้า fail ให้บันทึกใน `problem/generic/` โดยไม่ใส่ secret/temp IP

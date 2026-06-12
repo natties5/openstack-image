@@ -37,11 +37,11 @@
 | เรื่อง | หาได้จาก | ถ้ายังไม่พร้อม |
 |---|---|---|
 | Guest image พร้อมหรือยัง | `_guest-images.md` → OS นั้น ✅ เสร็จ? | สร้าง guest image ก่อน |
-| VM IP, user, OS | `image/tmp/<app>-build.env` หรือ output ที่ user ส่งมา | ให้ user ยืนยันก่อนเข้า VM |
-| SSH/OpenStack credentials | `image/tmp/<app>-build.env` | เติมเป็น temp env แล้วลบทิ้งหลังจบ |
+| VM IP, user, OS | `<app>-build.env` (temp, gitignored) หรือ output ที่ user ส่งมา | ให้ user ยืนยันก่อนเข้า VM |
+| SSH/OpenStack credentials | `<app>-build.env` (temp, gitignored) | เติมเป็น temp env แล้วลบทิ้งหลังจบ |
 | Build guide พร้อมหรือยัง | `<app>.md` → header tag `[พร้อม build]`? | สร้าง guide ก่อน |
 
-**Env ownership:** image build เป็น standalone workflow ใช้ temp env ใต้ `image/tmp/<app>-build.env` ได้เท่านั้นระหว่างทำงาน ไฟล์นี้ต้อง gitignored และลบทิ้งหลัง build ห้าม commit IP, ID, password, token หรือ private key
+**Env ownership:** image build เป็น standalone workflow ใช้ temp env ใต้ `build/tmp/<app>-build.env` ได้เท่านั้นระหว่างทำงาน ไฟล์นี้ต้อง gitignored และลบทิ้งหลัง build ห้าม commit IP, ID, password, token หรือ private key
 
 **Temp env contract:** ใช้เป็นไฟล์ชั่วคราวเฉพาะรอบ build ห้าม commit และต้องลบหลังจบงาน
 
@@ -117,10 +117,10 @@ echo "volumes: absent"
 
 | ไฟล์ | อัปเดตอะไร |
 |---|---|
-| `image/inventory/README.md` หรือ app post-check | generic build result, image name pattern, status แบบไม่มี IP/ID/secret |
+| `inventory/README.md` หรือ app post-check | generic build result, image name pattern, status แบบไม่มี IP/ID/secret |
 | `_app-catalog.md` | สถานะ build |
 | `<app>.md` header tag | `[พร้อม build]` → `[built: standalone]` หรือ status ที่ไม่ผูก cluster |
-| `image/tmp/<app>-build.env` | ลบทิ้งหลังจบงาน |
+| `build/tmp/<app>-build.env` | ลบทิ้งหลังจบงาน |
 
 ### Phase 3: เจอปัญหา
 
@@ -128,7 +128,7 @@ echo "volumes: absent"
 
 | ที่ | เก็บอะไร | ใช้ template |
 |---|---|---|
-| `image/problem/` | วิธีแก้ generic (ใช้ `{placeholder}`) | `_template.md` |
+| `problem/generic/` | วิธีแก้ generic (ใช้ `{placeholder}`) | `_template.md` |
 | `clusters/{name}/problem/` | เฉพาะปัญหาระหว่าง deploy/import เข้า cluster จริง | — |
 
 ---
@@ -139,7 +139,7 @@ echo "volumes: absent"
 
 | รายการ | ค่า |
 |---|---|
-| Build guide | `image/build/wordpress/wordpress.md` |
+| Build guide | `build/apps/wordpress/wordpress.md` |
 | Header tag | `[พร้อม build]` |
 | Base OS | Ubuntu 26.04 |
 | Docker images | `mariadb:lts`, `wordpress:php8.3-fpm`, `nginx:1.27` |
@@ -150,7 +150,7 @@ echo "volumes: absent"
 
 | รายการ | ค่า |
 |---|---|
-| Build guide | `image/build/nextcloud/nextcloud.md` |
+| Build guide | `build/apps/nextcloud/nextcloud.md` |
 | Header tag | `[รอ rebuild]` |
 | Base OS | Ubuntu 26.04 |
 | Docker images | `nextcloud:30.0-apache`, `postgres:16.9`, `redis:7.4-alpine`, `nginx:1.27-alpine` |
@@ -160,7 +160,7 @@ echo "volumes: absent"
 
 | รายการ | ค่า |
 |---|---|
-| Build guide | `image/build/odoo/odoo.md` |
+| Build guide | `build/apps/odoo/odoo.md` |
 | Header tag | `[พร้อม build]` |
 | Base OS | Ubuntu 26.04 |
 | Docker images | `odoo:18.0`, `postgres:16`, `nginx:1.27` |
@@ -171,7 +171,7 @@ echo "volumes: absent"
 
 | รายการ | ค่า |
 |---|---|
-| Build guide | `image/build/n8n/n8n.md` (ถ้ามี) |
+| Build guide | `build/apps/n8n/n8n.md` (ถ้ามี) |
 | Header tag | `[รอเติมเนื้อหา]` หรือ `[พร้อม build]` |
 | Base OS | Ubuntu 26.04 หรือ Debian 13 |
 | Docker images | `n8nio/n8n`, `postgres:15` |
@@ -244,11 +244,11 @@ if __name__ == "__main__":
 ## วิธีใช้สำหรับ Nextcloud (ครั้งต่อไป)
 
 1. **อ่าน** `AI-PIPELINE.md` → ดู Part 1 framework
-2. **อ่าน** `image/build/nextcloud/nextcloud.md` → ดู specific steps
-3. **เตรียม** `image/tmp/nextcloud-build.env` → SSH/OpenStack/temp build values สำหรับรอบนี้เท่านั้น
+2. **อ่าน** `build/apps/nextcloud/nextcloud.md` → ดู specific steps
+3. **เตรียม** `build/tmp/nextcloud-build.env` → SSH/OpenStack/temp build values สำหรับรอบนี้เท่านั้น
 4. **รัน** SSH/helper จาก temp env → ห้าม commit HOST, USER, PASSWORD, IP หรือ ID
 5. **Build** ตาม nextcloud.md steps
-6. **อัปเดต** docs ใต้ `image/` ตาม Part 1 Phase 2 แล้วลบ temp env
+6. **อัปเดต** docs ใต้ `build/` และ `docs/` ตาม Phase 2 แล้วลบ temp env
 
 ---
 
@@ -257,4 +257,4 @@ if __name__ == "__main__":
 | วันที่ | เพิ่ม/แก้ | โดย |
 |---|---|---|
 | 2026-06-06 | สร้างใหม่จาก WordPress build | AI (minimax-m2.7) |
-| 2026-06-08 | ปรับ workflow เป็น standalone image build + `image/tmp/<app>-build.env` | AI |
+| 2026-06-08 | ปรับ workflow เป็น standalone image build + `build/tmp/<app>-build.env` | AI |

@@ -93,8 +93,8 @@ list-apps:
 # Clean up temporary files
 cleanup-temp:
 	@echo "🧹 Cleaning up temporary files..."
-	@rm -rf build/temp/ && echo "  ✓ Removed build/temp/"
-	@rm -rf image/tmp/*.env && echo "  ✓ Removed image/tmp/*.env"
+	@rm -rf build/tmp/ && echo "  ✓ Removed build/tmp/"
+	@rm -rf build/tmp/*.env && echo "  ✓ Removed build/tmp/*.env"
 	@rm -rf scripts/temp/ && echo "  ✓ Removed scripts/temp/"
 	@echo ""
 	@echo "✅ Cleanup complete!"
@@ -126,7 +126,7 @@ docs:
 # Clean project (remove all temp files)
 clean:
 	@echo "🧹 Full cleanup..."
-	@rm -rf build/temp/
+	@rm -rf build/tmp/
 	@rm -rf image/tmp/
 	@rm -rf scripts/temp/
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
@@ -144,4 +144,4 @@ status:
 	@make list-apps
 	@echo ""
 	@echo "Temporary Files:"
-	@if [ -d "image/tmp" ]; then ls -la image/tmp 2>/dev/null || echo "  (empty)"; else echo "  (none)"; fi
+	@if [ -d "build/tmp" ]; then ls -la build/tmp 2>/dev/null || echo "  (empty)"; else echo "  (none)"; fi

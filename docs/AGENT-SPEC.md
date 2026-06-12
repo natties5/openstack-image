@@ -6,7 +6,7 @@
 
 ## 🎯 Your Role
 
-You are a specialized agent for the `image/` domain. Your responsibilities:
+You are a specialized agent for the OpenStack Image domain. Your responsibilities:
 
 - **Build images** — Follow AI-PIPELINE.md framework
 - **Troubleshoot** — Diagnose build failures, record generic patterns
@@ -70,8 +70,8 @@ When you receive a task:
 
 ### Makefile Targets
 ```bash
-make build-app APP=wordpress ENV=image/tmp/wordpress-build.env
-make validate-env ENV=image/tmp/app-build.env
+make build-app APP=wordpress ENV=build/tmp/wordpress-build.env
+make validate-env ENV=build/tmp/app-build.env
 make list-apps
 make cleanup-temp
 ```
@@ -84,7 +84,7 @@ make cleanup-temp
 - ✅ Read `build/_guest-images.md` — guest OS status?
 - ✅ Read `build/apps/{app}/{app}.md` — build guide ready?
 - ✅ Read `docs/AI-PIPELINE.md` — framework review
-- ✅ Prepare temp env `image/tmp/{app}-build.env` (gitignored)
+- ✅ Prepare temp env `build/tmp/{app}-build.env` (gitignored)
 - ⚠️ Verify 4 things on golden-image VM (after SSH):
   - OS version matches guide
   - Mirror ไทย configured
@@ -122,7 +122,7 @@ Must pass 6 checks BEFORE snapshot:
 - ✅ Update `build/_app-catalog.md` (status)
 - ✅ Update `build/apps/{app}/{app}.md` (header tag)
 - ✅ Update `build/apps/{app}/{app}-errors.md` (if failures occurred)
-- ✅ Delete temp env `image/tmp/{app}-build.env`
+- ✅ Delete temp env `build/tmp/{app}-build.env`
 - ✅ Record build result in `inventory/images/*.env`
 
 ---
@@ -170,7 +170,7 @@ When you complete a task, provide:
 ### สรุปการเปลี่ยนแปลง
 - **ทำอะไร:** [Short description]
 - **ไฟล์ที่แก้ไข:** [list of files]
-- **Status ที่เปลี่ยน:** [image/build/config/document]
+- **Status ที่เปลี่ยน:** [build/config/document]
 
 ### Cross-Domain Impact
 - **Primary owner:** image
@@ -183,7 +183,7 @@ When you complete a task, provide:
 - [ ] Updated `build/apps/{app}/{app}-errors.md` (if build failed)
 - [ ] Updated `build/apps/{app}/{app}-post-check.md` (if new checks added)
 - [ ] Created `problem/generic/*.md` (if new pattern discovered)
-- [ ] Deleted temp env `image/tmp/{app}-build.env` (if build completed)
+- [ ] Deleted temp env `build/tmp/{app}-build.env` (if build completed)
 
 ### Verify Checklist
 1. [command to verify 1] — [on which machine]
@@ -202,7 +202,7 @@ When you complete a task, provide:
 
 ### Secrets & Env Files
 - ❌ **NEVER** commit `.env`, passwords, tokens, private keys to git
-- ✅ **ALWAYS** gitignore `image/tmp/`, `build/temp/`
+- ✅ **ALWAYS** gitignore `build/tmp/`
 - ✅ **ALWAYS** delete temp env after build completes
 - ✅ **ALWAYS** remove `.env`, `credentials.txt` from golden image before capture
 
@@ -219,7 +219,7 @@ When you complete a task, provide:
 
 ### Documentation Links
 - ✅ When restructured, update ALL references to old paths
-- ❌ NEVER broken links (e.g., `image/references/` → `docs/references/`)
+- ❌ NEVER broken links (e.g., check all relative paths after restructuring)
 
 ---
 
@@ -258,7 +258,7 @@ When you change something, check what else needs updating:
 4. Check `docs/AI-PIPELINE.md` — build framework?
 
 **Then ask ONLY:**
-- OpenStack credentials / SSH access (image/tmp/{app}-build.env)
+- OpenStack credentials / SSH access (build/tmp/{app}-build.env)
 - Feature selection for new app
 - Confirmation if build guide is outdated
 
@@ -277,4 +277,4 @@ When you change something, check what else needs updating:
 
 **Version:** 2026-06-12  
 **Role:** OpenStack Image Specialist  
-**Domain:** image/
+**Domain:** build/apps/ (openstack-image)

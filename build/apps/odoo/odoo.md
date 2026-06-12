@@ -155,7 +155,7 @@ chmod 700 /opt/odoo/certs /opt/odoo/backups
 
 ### 4. คัดลอกไฟล์ static
 
-> Reference: Source files อยู่ใน `build/odoo/` — ใช้ตรวจสอบหรือ copy โดยตรงก็ได้
+> Reference: Source files อยู่ใน `build/apps/odoo/` — ใช้ตรวจสอบหรือ copy โดยตรงก็ได้
 
 ไฟล์ที่ต้องวางบน VM ก่อน build image:
 - `docker-compose.yml` → `/opt/odoo/docker-compose.yml`

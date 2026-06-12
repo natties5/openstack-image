@@ -121,7 +121,7 @@ grep "{OS}" build/_guest-images.md | grep "✅"
 
 ```bash
 # 1. Create temp env (gitignored)
-cat > image/tmp/{app}-build.env << 'EOF'
+cat > build/tmp/{app}-build.env << 'EOF'
 IMAGE_BUILD_HOST=—
 IMAGE_BUILD_USER=root
 IMAGE_BUILD_PASSWORD=—
@@ -175,7 +175,7 @@ test ! -e /var/log/{app}-bootstrap.log
 # Add: {APP}_IMAGE_NAME="..." GLANCE_ID="..."
 
 # 4. DELETE temp env
-rm image/tmp/{app}-build.env
+rm build/tmp/{app}-build.env
 
 # 5. (Optional) Record errors
 # File: build/apps/{app}/{app}-errors.md
@@ -250,7 +250,7 @@ Before running `git commit`:
 [ ] docs/DEPENDENCIES.md cross-checked?
 
 # 2. No secrets leaked?
-[ ] image/tmp/*.env deleted? (check with: ls image/tmp/)
+[ ] build/tmp/*.env deleted? (check with: ls build/tmp/)
 [ ] No .env files committed? (check: git status)
 [ ] No passwords in files? (grep -r "password=" .)
 
@@ -320,10 +320,10 @@ git push origin feature/new-app-odoo
 make list-apps
 
 # Validate environment before build
-make validate-env ENV=image/tmp/app-build.env
+make validate-env ENV=build/tmp/app-build.env
 
 # Check build readiness
-make build-app APP=wordpress ENV=image/tmp/wordpress-build.env
+make build-app APP=wordpress ENV=build/tmp/wordpress-build.env
 
 # Show documentation index
 make docs
@@ -367,7 +367,7 @@ make help
 ### Remove Accidentally Committed Secret
 ```bash
 # If you accidentally committed a .env file:
-git rm --cached image/tmp/wordpress-build.env
+git rm --cached build/tmp/wordpress-build.env
 git commit -m "Remove accidentally committed .env"
 # Then regenerate credentials!
 ```
@@ -384,7 +384,7 @@ git commit -m "Fixed version"
 ```bash
 make clean
 # Or manual:
-rm -rf image/tmp/ build/temp/ scripts/temp/
+rm -rf build/tmp/ build/tmp/ scripts/temp/
 ```
 
 ---

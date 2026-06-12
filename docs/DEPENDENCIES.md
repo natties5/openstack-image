@@ -12,7 +12,6 @@
 | | `docs/AGENTS.md` (mirror matrix section) | If new OS or mirror discovered | MEDIUM |
 | `build/_app-catalog.md` (app status) | `docs/README.md` | Update status table | HIGH |
 | `build/apps/{app}/{app}.md` (build guide) | `build/_app-catalog.md` | Update header tag (e.g., `[พร้อม build]`) | HIGH |
-| | `docs/examples/build-{app}.md` | If new build example needed | MEDIUM |
 | `build/apps/{app}/{app}-review.md` | `build/_app-catalog.md` | Mark as "has review" if new | MEDIUM |
 | `docs/references/mirrors.md` (mirror config) | `docs/AGENTS.md` (mirror matrix section) | Update with new mirror info | HIGH |
 | | `build/_guest-images.md` (if mirror changed) | Update guest image build steps | MEDIUM |
@@ -48,8 +47,9 @@
 | `build/apps/{app}/{app}.md` | User + AI agents | Per-app build guide |
 | `build/apps/{app}/{app}-review.md` | User + AI agents | Feature selection |
 | `build/apps/{app}/{app}-errors.md` | AI agents | Error learning log |
-| `scripts/templates/*.sh.tmpl` | User + `Makefile` | Build automation |
-| `scripts/utils/*.py` | Build automation | Pre-flight + validation |
+| `scripts/templates/*.sh.tmpl` | *(planned — not yet created)* User + `Makefile` | Build automation |
+| `scripts/utils/*.py` | *(planned — not yet created)* Build automation | Pre-flight + validation |
+| `scripts/README.md` | *(planned — not yet created)* User | Scripts documentation |
 | `Makefile` | User | Quick automation targets |
 | `CONTRIBUTING.md` | User + developer | Workflow guide |
 
@@ -59,7 +59,7 @@
 
 ### Scenario 1: สร้าง App Image ใหม่
 
-```
+```text
 1. Create build/apps/{newapp}/ folder
    ↓
 2. Write build/apps/{newapp}/{newapp}.md (build guide)
@@ -71,18 +71,16 @@
 5. Update build/_app-catalog.md (add row with app + status)
    ↓
 6. Update docs/README.md (update status table + quick links)
-   ↓
-7. (Optional) Create docs/examples/build-{newapp}.md (if needed)
 ```
 
-**Affected files:** 7 files  
+**Affected files:** 6 files  
 **Dependency chain:** Step 1 → 2 → 3 → 5 → 6
 
 ---
 
 ### Scenario 2: Build App Image เสร็จ
 
-```
+```text
 1. Update build/apps/{app}/{app}.md (header tag: [พร้อม build] → [built: ...])
    ↓
 2. Update build/_app-catalog.md (status: "พร้อม build" → "built แล้ว")
@@ -93,7 +91,7 @@
    ↓
 5. Update build/apps/{app}/{app}-errors.md (if errors occurred during build)
    ↓
-6. Delete temp env file: image/tmp/{app}-build.env
+6. Delete temp env file: build/tmp/{app}-build.env
    ↓
 7. Update inventory/images/*.env (generic build metadata, NO IP/ID/secret)
 ```
@@ -105,7 +103,7 @@
 
 ### Scenario 3: พบ Mirror Issue ใหม่ + Fix
 
-```
+```text
 1. Update docs/references/mirrors.md (new mirror info + verify)
    ↓
 2. Update docs/AGENTS.md → mirror matrix section
@@ -124,7 +122,7 @@
 
 ### Scenario 4: Build บน Cluster จริง
 
-```
+```text
 1. Pre-flight: Read clusters/{name}/inventory/vm.md + cluster/.env
    ↓
 2. Run build per build/apps/{app}/{app}.md
@@ -139,7 +137,7 @@
    ↓
 7. Update build/apps/{app}/{app}.md (header tag: [built: {cluster}])
    ↓
-8. NOTE: image/build/* docs stay STANDALONE (no IP/ID/secret)
+8. NOTE: build/apps/* docs stay STANDALONE (no IP/ID/secret)
 ```
 
 **Affected files:** 5-7 files  
@@ -155,7 +153,7 @@
 | ✅ Update `build/_app-catalog.md` but forget `docs/README.md` | Status table out of sync | Always update both |
 | ✅ Change mirror but forget to update `docs/AGENTS.md` | Mirror matrix outdated | Update dependency immediately |
 | ✅ Create new guest image but forget to update `docs/README.md` | Broken quick links | Update overview doc |
-| ✅ Commit `image/tmp/*.env` to git | Secret leakage | Add to `.gitignore` + regenerate secrets |
+| ✅ Commit `build/tmp/*.env` to git | Secret leakage | Add to `.gitignore` + regenerate secrets |
 | ✅ Update `build/apps/{app}/` but forget to update `build/_app-catalog.md` | Status out of sync | Check catalog after every build |
 | ✅ Write build guide without testing = broken steps | User can't follow | Always test before publishing |
 
@@ -169,14 +167,36 @@
 1. Did I update docs/README.md if I changed _catalog or _guest-images?     [ ] ✅
 2. Did I update docs/AGENTS.md if I changed mirror or cloud-init?          [ ] ✅
 3. Did I update build/_app-catalog.md if I created/updated app?            [ ] ✅
-4. Did I check for .gitignore violations (image/tmp/, build/temp/)?        [ ] ✅
-5. Did I delete temp env files (image/tmp/{app}-build.env)?                [ ] ✅
+4. Did I check for .gitignore violations (build/tmp/, build/templates/)?   [ ] ✅
+5. Did I delete temp env files (build/tmp/{app}-build.env)?                [ ] ✅
 6. Did I verify all internal links work? (no broken paths)                  [ ] ✅
 7. Did I test the guide before committing?                                 [ ] ✅
 8. Did I record any new issues in problem/generic/?                        [ ] ✅
 
 If any [ ] is empty → fix before commit!
 ```
+
+---
+
+## 📁 Paths vs Current Reality
+
+> อ้างอิงโครงสร้างจริงของ repo — ถ้า path ยังไม่มีให้สร้างก่อนใช้
+
+| Path | สถานะ | หมายเหตุ |
+|---|---|---|
+| `build/apps/{app}/` | ✅ มี | n8n, nextcloud, odoo, wordpress |
+| `build/_app-catalog.md` | ✅ มี | |
+| `build/_guest-images.md` | ✅ มี | |
+| `build/templates/` | ⚠️ มีแต่ว่างเปล่า | ยังไม่มี template ไฟล์ |
+| `build/tmp/` | ❌ ยังไม่มี | ต้องสร้างเวลา build (gitignored) |
+| `docs/examples/` | ⚠️ มีแต่ว่างเปล่า | ยังไม่มี build example ไฟล์ |
+| `docs/references/` | ✅ มี | |
+| `inventory/images/` | ❌ ยังไม่มี | ต้องสร้าง subdirectory `images/` ก่อนใช้ |
+| `problem/generic/` | ✅ มี | nextcloud-docker-install-wizard-after-bootstrap.md, provider-interface-rename-cloud-init.md |
+| `clusters/` | ⚠️ มีแต่ว่างเปล่า | ยังไม่มี cluster ไฟล์ |
+| `scripts/templates/` | ⚠️ มีแต่ว่างเปล่า | *(planned)* จะใส่ `*.sh.tmpl` build templates |
+| `scripts/utils/` | ⚠️ มีแต่ว่างเปล่า | *(planned)* จะใส่ `*.py` pre-flight + validation |
+| `scripts/README.md` | ❌ ยังไม่มี | *(planned)* scripts documentation |
 
 ---
 

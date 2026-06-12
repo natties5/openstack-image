@@ -1,4 +1,4 @@
-# n8n Workflow Automation Image — Ubuntu 24.04  [รอเติมเนื้อหา]
+# n8n Workflow Automation Image — Ubuntu 26.04  [รอเติมเนื้อหา]
 
 > Image สำเร็จรูป: สร้าง VM → n8n พร้อมใช้ทันทีที่ `http://<IP>:5678` รองรับ HTTPS
 

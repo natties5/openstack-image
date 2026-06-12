@@ -11,7 +11,7 @@
 
 | รายการ | สถานะ | หมายเหตุ |
 |---|---|---|
-| Build guide พร้อม | ✅ done | `image/build/wordpress/wordpress.md` |
+| Build guide พร้อม | ✅ done | `build/apps/wordpress/wordpress.md` |
 | Build VM ทำจริง | ✅ done | ดู cluster inventory ที่เกี่ยวข้อง |
 | Cleanup ก่อน capture | ✅ done | ต้องไม่มี runtime secret ก่อน snapshot |
 | Capture เป็น Glance image | ✅ done | ยืนยันจาก VM test ที่ boot จาก image; Glance ID — |
@@ -102,4 +102,4 @@ ls -l /opt/wordpress/.env /root/wordpress-credentials.txt
 2. SSH เข้า `[wordpress-test-vm]`
 3. รันคำสั่งในหัวข้อ Post-Check ทีละข้อ
 4. อัปเดตตาราง `Success Criteria` เป็น `✅ pass` หรือ `❌ fail`
-5. ถ้า fail ให้บันทึก incident ใน `image/problem/` และ cluster `problem/` ที่เกี่ยวข้อง โดยไม่ใส่ secret
+5. ถ้า fail ให้บันทึก incident ใน `problem/generic/` และ cluster `problem/` ที่เกี่ยวข้อง โดยไม่ใส่ secret

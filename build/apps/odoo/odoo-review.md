@@ -119,5 +119,5 @@
 
 1. อ่าน decision table ก่อนเปลี่ยน feature
 2. ถ้าเปลี่ยน Odoo major ให้ทดสอบ init/backup/restore ใหม่ทั้งหมด
-3. ถ้าเจอปัญหาใหม่ ให้เพิ่ม `odoo-errors.md` หรือ `image/problem/` ตามขอบเขต
+3. ถ้าเจอปัญหาใหม่ ให้เพิ่ม `odoo-errors.md` หรือ `problem/generic/` ตามขอบเขต
 4. ถ้า build ผ่านจริง ค่อยอัปเดต `odoo-post-check.md` และ `_app-catalog.md`

@@ -26,26 +26,16 @@ openstack-image/
 │   ├── AI-PIPELINE.md          (build pipeline framework)
 │   ├── DEPENDENCIES.md         (dependency map — ไฟล์ A ↔ ไฟล์ B)
 │   ├── ARCHITECTURE.md         (visual folder structure + purpose)
-│   ├── examples/               (step-by-step build examples)
-│   │   ├── build-wordpress.md
-│   │   ├── build-nextcloud.md
-│   │   └── build-odoo.md
+│   ├── examples/               (ว่าง — สำหรับ step-by-step build examples ในอนาคต)
 │   └── references/             (mirrors, cloud-init templates)
 │       ├── mirrors.md
 │       └── cloud-init-scenarios.md
 ├── scripts/                    ← Automation & Tools
-│   ├── templates/             (shell script templates for build)
-│   │   ├── step2_install_base.sh.tmpl
-│   │   ├── step3_install_docker.sh.tmpl
-│   │   ├── ... (7 steps total)
-│   │   └── README.md
-│   └── utils/                 (reusable utilities)
-│       ├── ssh-runner.py
-│       ├── env-validator.py
-│       └── image-capturer.py
+│   ├── templates/              (ว่าง — shell script templates สำหรับ build)
+│   └── utils/                  (ว่าง — reusable utilities)
 ├── build/                     ← Build Output & Source Files
 │   ├── _app-catalog.md        (app status + wishlist)
-│   ├── _guest-images.md       (guest image pipeline: 9 OS)
+│   ├── _guest-images.md        (guest image pipeline: 9 OS)
 │   ├── _guest-images-errors.md (AI mistakes log)
 │   ├── _verify-template.md    (pre-capture gate checklist template)
 │   ├── apps/                  (per-app source files)
@@ -53,29 +43,29 @@ openstack-image/
 │   │   │   ├── wordpress.md
 │   │   │   ├── wordpress-review.md
 │   │   │   ├── wordpress-errors.md
+│   │   │   ├── wordpress-post-check.md
 │   │   │   ├── docker-compose.yml
 │   │   │   ├── nginx/
 │   │   │   ├── php/
-│   │   │   └── ... (bootstrap.sh, service, MOTD, etc.)
+│   │   │   ├── wordpress-bootstrap.sh
+│   │   │   ├── wordpress-bootstrap.service
+│   │   │   ├── README-wordpress-image.txt
+│   │   │   └── 99-wordpress-image
 │   │   ├── nextcloud/
 │   │   ├── odoo/
 │   │   └── n8n/
-│   └── templates/             (reusable app templates)
-│       ├── .env.example
-│       ├── bootstrap.service.tmpl
-│       ├── docker-compose.yml.tmpl
-│       └── cloud-init.tmpl
-├── inventory/                 ← Build Output Metadata
-│   └── images/
-│       ├── guest-images.env
-│       └── app-images.env
+│   ├── templates/              (ว่าง — reusable app templates)
+│   └── tmp/                    (temp env files ระหว่าง build — gitignored)
+│       └── {app}-build.env     (สร้างระหว่าง build, ลบหลังจบ)
+├── inventory/                  ← Build Environment Config
+│   ├── README.md
+│   └── build.env              (SSH connection template เข้า VM)
 ├── problem/                   ← Troubleshooting Docs
 │   ├── generic/
-│   │   ├── docker-pull-failed-proxy.md
-│   │   └── ...
-│   └── _template.md           (template for new issues)
-├── clusters/                  ← Cluster-Specific (Future)
-│   └── README.md              (placeholder)
+│   │   ├── nextcloud-docker-install-wizard-after-bootstrap.md
+│   │   └── provider-interface-rename-cloud-init.md
+│   └── _template.md            (template for new issues)
+├── clusters/                  ← Cluster-Specific (ว่าง — Future)
 ├── Makefile                   ← Automation Targets
 ├── CONTRIBUTING.md            ← Workflow Guide
 ├── .gitignore                 ← Updated for temp files
@@ -105,10 +95,9 @@ openstack-image/
 - **`docs/AGENTS.md`** — Image-specific rules (mirror, sed, cloud-init, package cache)
 - **`docs/AI-PIPELINE.md`** — Build pipeline framework (phases, pre-flight, post-build)
 
-### 2️⃣ **Reference & Examples**
+### 2️⃣ **Reference**
 - **`docs/references/mirrors.md`** — Mirror availability matrix (TH mirrors)
 - **`docs/references/cloud-init-scenarios.md`** — User-data templates
-- **`docs/examples/*.md`** — Step-by-step build examples per app
 - **`docs/ARCHITECTURE.md`** — Visual folder structure + purpose explanation
 - **`docs/DEPENDENCIES.md`** — Dependency map (ถ้าแก้ไฟล์ A ต้องอัปเดต B)
 
@@ -118,13 +107,12 @@ openstack-image/
 - **`build/apps/{app}/{app}.md`** — Per-app build guide (self-contained, copy-paste ได้)
 
 ### 4️⃣ **Automation**
-- **`scripts/README.md`** — How to use templates (copy → sed replace → run)
-- **`scripts/templates/*.sh.tmpl`** — Shell script templates (7 steps)
-- **`scripts/utils/*.py`** — Utilities (SSH runner, env validator, image capturer)
+- **`scripts/templates/`** — Shell script templates (ยังว่าง, สำหรับอนาคต)
+- **`scripts/utils/`** — Utilities (ยังว่าง, สำหรับอนาคต)
 - **`Makefile`** — Quick targets (make build-app, make validate-env, etc.)
 
 ### 5️⃣ **Troubleshooting**
-- **`problem/`** — Generic issues (docker-pull, mirror-404, etc.)
+- **`problem/generic/`** — Generic issues (docker-pull, cloud-init, etc.)
 - **`build/_verify-template.md`** — Pre-capture gate checklist template
 
 ---
@@ -151,7 +139,7 @@ openstack-image/
 5. หลัง build เสร็จ
    → อัปเดต build/_app-catalog.md (status)
    → อัปเดต build/apps/{app}/{app}.md (header tag: [built: ...])
-   → ลบ temp env file (image/tmp/{app}-build.env)
+   → ลบ temp env file (build/tmp/{app}-build.env)
 
 6. Troubleshooting
    → Generic issue → problem/generic/{issue}.md (reusable)
@@ -168,15 +156,15 @@ build/apps/{app}/
 ├── {app}-review.md            ← Community research (not AI test scenario)
 ├── {app}-errors.md            ← AI mistakes log (commands that failed + fixes)
 ├── {app}-post-check.md        ← Post-check checklist (optional)
-├── docker-compose.yml         ← Source file (reference)
-├── bootstrap.sh               ← First-boot script (generates secrets, starts app)
-├── bootstrap.service          ← systemd oneshot unit
+├── docker-compose.yml          ← Source file (reference)
+├── {app}-bootstrap.sh          ← First-boot script (generates secrets, starts app)
+├── {app}-bootstrap.service     ← systemd oneshot unit
 ├── nginx/
-│   ├── default.conf          ← HTTP config
-│   └── default-https.conf    ← HTTPS config
+│   ├── default.conf           ← HTTP config
+│   └── default-https.conf     ← HTTPS config
 ├── php/ (if applicable)
-├── README-{app}-image.txt     ← User-facing documentation
-└── 99-{app}-image             ← Custom cloud-init config (if needed)
+├── README-{app}-image.txt      ← User-facing documentation
+└── 99-{app}-image              ← Custom cloud-init config (if needed)
 ```
 
 **กฎ 3 ไฟล์:**
@@ -198,7 +186,7 @@ build/apps/{app}/
 1. เปิด `build/_app-catalog.md` → เลือก app
 2. อ่าน `build/apps/{app}/{app}.md` → ดู status + prerequisites
 3. อ่าน `docs/AI-PIPELINE.md` → เข้าใจ Pre-flight + Build + Verify + Post-build phases
-4. ใช้ shell scripts from `scripts/templates/` → copy → sed replace → run
+4. ถ้ามี templates ใน `scripts/templates/` → copy → sed replace → run
 5. หลัง build → อัปเดต docs + ลบ temp env
 
 ---
@@ -209,12 +197,12 @@ build/apps/{app}/
 - Image build เป็น **standalone** ไม่ผูก cluster
 - ห้ามบันทึก temp IP, server ID, floating IP, Glance ID ลง docs กลาง
 - ห้ามเก็บ password, token, private key, credentials
-- Temp env อยู่ใน `image/tmp/{app}-build.env` (gitignored, ลบหลังจบ)
+- Temp env อยู่ใน `build/tmp/{app}-build.env` (gitignored, ลบหลังจบ)
 
 ### Environment Ownership
 ```text
 Build-specific (temp, ลบหลังจบ):
-  image/tmp/{app}-build.env              ← gitignored
+  build/tmp/{app}-build.env              ← gitignored
   /opt/{app}/.env (บน VM)                ← delete ก่อน capture
 
 Golden-image persistent:
@@ -232,11 +220,11 @@ Golden-image persistent:
 
 ## 🚀 Getting Started
 
-1. **หากเป็น AI agent:** อ่านลำดับนี้:
-   - `docs/AGENT-SPEC.md` (role + responsibilities)
-   - `docs/AGENTS.md` (image-specific rules)
-   - `docs/AI-PIPELINE.md` (build framework)
-   - `docs/DEPENDENCIES.md` (if updating dependencies)
+1. **หากเป็น AI agent — จุดเริ่มต้น:**
+   - `docs/AGENT-SPEC.md` — อ่านก่อน: role, scope, output format
+   - `docs/AGENTS.md` — อ่านรอง: build pipeline, mirror rules, dependency map
+   - `docs/AI-PIPELINE.md` — อ่านเมื่อต้อง build บน VM: phases, pre-flight, post-build
+   - `docs/DEPENDENCIES.md` — อ่านเมื่อแก้ไฟล์ที่มีผลกระทบต่อไฟล์อื่น
 
 2. **หาก user ต้องการสร้าง app image ใหม่:**
    - AI อ่าน `build/_app-catalog.md`
@@ -266,7 +254,6 @@ Golden-image persistent:
 - **Agent Spec:** `docs/AGENT-SPEC.md`
 - **Build Pipeline:** `docs/AI-PIPELINE.md`
 - **Mirror Config:** `docs/references/mirrors.md`
-- **Examples:** `docs/examples/build-*.md`
 - **Troubleshooting:** `problem/`
 - **Automation:** `scripts/` + `Makefile`
 

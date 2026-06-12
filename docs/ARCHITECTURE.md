@@ -14,30 +14,13 @@ openstack-image/
 │   ├── AI-PIPELINE.md               (Build pipeline framework)
 │   ├── DEPENDENCIES.md              (File dependency map)
 │   ├── ARCHITECTURE.md              (This file - visual structure)
-│   ├── examples/                    (Step-by-step build examples)
-│   │   ├── build-wordpress.md
-│   │   ├── build-nextcloud.md
-│   │   └── build-odoo.md
 │   └── references/                  (Reusable references)
 │       ├── mirrors.md               (Thai mirror matrix per OS)
 │       └── cloud-init-scenarios.md  (Cloud-init user-data templates)
 │
-├── 📂 scripts/                       [Automation & Tools]
-│   ├── README.md                    (How to use scripts)
-│   ├── templates/                   (Shell script templates for build)
-│   │   ├── step2_install_base.sh.tmpl
-│   │   ├── step3_install_docker.sh.tmpl
-│   │   ├── step4_5_deploy_files.sh.tmpl
-│   │   ├── step6_enable_service.sh.tmpl
-│   │   ├── step7_test_bootstrap.sh.tmpl
-│   │   ├── step8_cleanup.sh.tmpl
-│   │   ├── step9_final_check.sh.tmpl
-│   │   └── README.md                (Template usage guide)
-│   └── utils/                       (Reusable utilities)
-│       ├── ssh-runner.py            (Paramiko SSH helper for Windows)
-│       ├── env-validator.py         (Pre-flight environment check)
-│       ├── image-capturer.py        (OpenStack image capture wrapper)
-│       └── README.md                (Utils API + examples)
+├── 📂 scripts/                       [Automation & Tools — Planned]
+│   ├── templates/                   (Shell script templates — empty)
+│   └── utils/                       (Reusable utilities — empty)
 │
 ├── 📂 build/                        [Build Output & Source Files]
 │   ├── _app-catalog.md              (App status + wishlist overview)
@@ -68,6 +51,8 @@ openstack-image/
 │   │   │   ├── nextcloud-post-check.md
 │   │   │   ├── docker-compose.yml
 │   │   │   ├── nginx/
+│   │   │   │   ├── default.conf
+│   │   │   │   └── default-https.conf
 │   │   │   ├── nextcloud-bootstrap.service
 │   │   │   ├── nextcloud-bootstrap.sh
 │   │   │   ├── README-nextcloud-image.txt
@@ -81,6 +66,8 @@ openstack-image/
 │   │   │   ├── odoo-post-check.md
 │   │   │   ├── docker-compose.yml
 │   │   │   ├── nginx/
+│   │   │   │   ├── default.conf
+│   │   │   │   └── default-https.conf
 │   │   │   ├── odoo-bootstrap.service
 │   │   │   ├── odoo-bootstrap.sh
 │   │   │   ├── odoo-tune-workers.sh
@@ -94,51 +81,26 @@ openstack-image/
 │   │       ├── n8n-errors.md
 │   │       └── ... (source files)
 │   │
-│   └── templates/                   [Reusable App Templates]
-│       ├── .env.example             (Template env vars)
-│       ├── bootstrap.service.tmpl   (systemd service template)
-│       ├── docker-compose.yml.tmpl  (Docker Compose base template)
-│       ├── cloud-init.tmpl          (Cloud-init user-data template)
-│       └── nginx-default.conf.tmpl  (Nginx config template)
+│   └── templates/                   [Reusable App Templates — Empty]
 │
 ├── 📂 inventory/                    [Build Output Metadata]
-│   ├── images/                      (Image metadata storage)
-│   │   ├── guest-images.env         (Guest image list + Glance IDs)
-│   │   └── app-images.env           (App image list + Glance IDs)
-│   └── README.md                    (Inventory guide + format spec)
+│   ├── README.md                    (Inventory guide + format spec)
+│   ├── build.env                    (Build environment config)
+│   └── images/                      (Planned — image metadata storage)
+│       └── (not yet created)
 │
 ├── 📂 problem/                      [Troubleshooting Docs]
-│   ├── generic/                     (Generic issues - reusable across builds)
-│   │   ├── docker-pull-failed-proxy.md (Docker pull failure with proxy)
-│   │   ├── provider-interface-rename-cloud-init.md
-│   │   ├── nextcloud-docker-install-wizard-after-bootstrap.md
-│   │   └── ...
-│   └── _template.md                 (Template for new issues)
+│   ├── _template.md                 (Template for new issues)
+│   └── generic/                     (Generic issues — reusable across builds)
+│       ├── provider-interface-rename-cloud-init.md
+│       └── nextcloud-docker-install-wizard-after-bootstrap.md
 │
-├── 📂 clusters/                     [Cluster-Specific (Future)]
-│   └── README.md                    (Placeholder for cluster docs)
+├── 📂 clusters/                     [Cluster-Specific (Future) — Empty]
 │
 ├── 📄 Makefile                      [Automation Targets]
-│   ├── make build-app APP=<name> ENV=<path>
-│   ├── make validate-env ENV=<path>
-│   ├── make list-apps
-│   ├── make cleanup-temp
-│   └── make docs
-│
 ├── 📄 CONTRIBUTING.md               [Workflow Guide]
-│   ├── How to create new app image
-│   ├── How to update existing guide
-│   ├── How to troubleshoot
-│   └── Pre-commit checklist
-│
+├── 📄 RESTRUCTURE_SUMMARY.md        [Restructure changelog]
 ├── 📄 .gitignore                    [Git Ignore Rules]
-│   ├── image/tmp/
-│   ├── build/temp/
-│   ├── scripts/temp/
-│   ├── .env
-│   ├── *.private
-│   └── credentials.txt
-│
 └── 📂 .git/
 ```
 
@@ -149,11 +111,12 @@ openstack-image/
 | Folder | Purpose | Access | Frequency |
 |---|---|---|---|
 | **docs/** | Central documentation hub | AI agents + users | Read EVERY build |
-| **scripts/templates/** | Reusable shell templates | User + automation | Copy-paste to temp → modify → run |
-| **scripts/utils/** | Reusable Python utilities | Build automation | Pre-flight check + SSH runner |
+| **scripts/templates/** | Reusable shell templates (planned) | User + automation | Copy-paste to temp → modify → run |
+| **scripts/utils/** | Reusable Python utilities (planned) | Build automation | Pre-flight check + SSH runner |
 | **build/apps/{app}/** | Per-app source + guide | AI agents + users | Read to understand app |
-| **build/templates/** | App templates (reusable) | New app creation | Copy when creating app image |
-| **inventory/images/** | Built image metadata | Post-build recording | Write after capture |
+| **build/templates/** | App templates (planned) | New app creation | Copy when creating app image |
+| **inventory/images/** | Built image metadata (planned) | Post-build recording | Write after capture |
+| **inventory/** | Build config + inventory guide | Build automation | Read build.env |
 | **problem/generic/** | Generic troubleshooting docs | AI agents | Consult when debugging |
 | **clusters/** | Cluster-specific docs (future) | Cluster deployment phase | NOT image build phase |
 
@@ -172,9 +135,9 @@ AI reads build/apps/{app}/{app}.md (build guide)
      ↓
 AI reads docs/AI-PIPELINE.md (framework)
      ↓
-User prepares image/tmp/{app}-build.env (temp, gitignored)
+User prepares build/tmp/{app}-build.env (temp, gitignored)
      ↓
-AI copy scripts/templates/*.sh.tmpl → scripts/temp/
+AI copy scripts/templates/*.sh.tmpl → scripts/temp/  (planned feature)
      ↓
 User sed replace {PLACEHOLDERS} in temp scripts
      ↓
@@ -187,8 +150,8 @@ VM poweroff + capture → Glance image
 Update:
   - build/apps/{app}/{app}.md (header tag)
   - build/_app-catalog.md (status)
-  - inventory/images/*.env (metadata)
-  - DELETE image/tmp/{app}-build.env
+  - inventory/images/*.env (metadata — planned)
+  - DELETE build/tmp/{app}-build.env
 ```
 
 ### 2️⃣ Cluster Deployment Phase (Cluster Domain)
@@ -232,12 +195,11 @@ Cluster data goes to **clusters/** folder, NOT image build docs
 
 ```gitignore
 # Temp files during build (delete after use)
-image/tmp/                          # build-specific env
-build/temp/                         # build workspace
-scripts/temp/                       # temp script workspace
+build/tmp/                           # build-specific env
+scripts/temp/                        # temp script workspace
 
 # Secrets (NEVER commit)
-.env                                # all env files
+.env                                 # all env files
 *.private                           # private keys
 credentials.txt                     # credentials
 ```
@@ -260,13 +222,7 @@ docs/DEPENDENCIES.md                [IF UPDATING DOCS]
     ↓
     Check: which files must I update together?
 
-scripts/README.md                   [FOR BUILD AUTOMATION]
-    ↓
-    scripts/templates/*.sh.tmpl
-    ↓
-    scripts/utils/*.py
-
-problem/generic/_template.md        [WHEN TROUBLESHOOTING]
+problem/_template.md                 [WHEN TROUBLESHOOTING]
     ↓
     Create problem/generic/{issue}.md
 ```
@@ -291,7 +247,7 @@ problem/generic/_template.md        [WHEN TROUBLESHOOTING]
 
 ### 🔧 **Cluster Ops (deploying image to cluster)**
 1. `docs/README.md` → Overview
-2. `inventory/images/*.env` → Image list
+2. `inventory/images/*.env` → Image list (planned)
 3. `clusters/{name}/inventory/vm.md` → VM info
 4. Import image → Create VM → Done
 
@@ -315,13 +271,13 @@ problem/generic/_template.md        [WHEN TROUBLESHOOTING]
 ```text
 Folder Sizes (est.):
 ├── docs/               ~ 200 KB   (markdown only)
-├── scripts/            ~ 50 KB    (templates + utils)
+├── scripts/            ~ empty    (templates + utils — planned)
 ├── build/apps/         ~ 400 KB   (4 apps × 100 KB ea)
-├── build/templates/    ~ 20 KB    (reusable templates)
-├── inventory/          ~ 10 KB    (metadata)
+├── build/templates/    ~ empty    (reusable templates — planned)
+├── inventory/          ~ 10 KB    (README + build.env)
 └── problem/            ~ 50 KB    (troubleshooting)
 
-Total: ~ 700 KB (very lightweight, mostly text)
+Total: ~ 660 KB (very lightweight, mostly text)
 ```
 
 ---
@@ -336,9 +292,11 @@ Total: ~ 700 KB (very lightweight, mostly text)
 | Build guide | `build/apps/{app}/{app}.md` | Step-by-step commands |
 | Mirror config | `docs/references/mirrors.md` | Thai mirrors per OS |
 | Cloud-init template | `docs/references/cloud-init-scenarios.md` | User-data examples |
-| Script template | `scripts/templates/step*.sh.tmpl` | Copy-paste ready |
-| Troubleshooting | `problem/generic/` | Docker pull failures, etc. |
+| Script template | `scripts/templates/` | (Planned — not yet created) |
+| Troubleshooting | `problem/generic/` | Docker pull failures, cloud-init issues |
 | Dependencies | `docs/DEPENDENCIES.md` | Update A → then update B |
+| Inventory guide | `inventory/README.md` | Format spec + build.env |
+| Build config | `inventory/build.env` | Build environment variables |
 
 ---
 

@@ -3,8 +3,8 @@
 # ==============================================================================
 
 # Temporary build files (NEVER commit)
+build/tmp/
 image/tmp/
-build/temp/
 scripts/temp/
 
 # Secrets (CRITICAL — NEVER commit)
@@ -26,7 +26,7 @@ __pycache__/
 env/
 venv/
 ENV/
-build/
+# build/tmp/ already specified above
 develop-eggs/
 dist/
 downloads/

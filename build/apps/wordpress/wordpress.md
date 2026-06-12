@@ -120,7 +120,7 @@ chmod 700 /opt/wordpress/certs
 
 ### 4. คัดลอกไฟล์ static
 
-> **Reference:** Source files อยู่ใน `build/wordpress/` — ใช้ตรวจสอบหรือ copy โดยตรงก็ได้
+> **Reference:** Source files อยู่ใน `build/apps/wordpress/` — ใช้ตรวจสอบหรือ copy โดยตรงก็ได้
 
 ไฟล์ที่ต้องวางบน VM ก่อน build image:
 - `docker-compose.yml` → `/opt/wordpress/docker-compose.yml`

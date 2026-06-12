@@ -41,14 +41,14 @@
 
 ## ก่อนเริ่ม — Pre-flight Verification
 
-> **ก่อน SSH เข้า VM** — image build เป็น standalone workflow ใช้ temp env ใต้ `image/tmp/` และลบทิ้งหลังจบงาน
+> **ก่อน SSH เข้า VM** — image build เป็น standalone workflow ใช้ temp env ใต้ `build/tmp/` และลบทิ้งหลังจบงาน
 
 | เช็ค | ได้จาก | ถ้ายังไม่พร้อม |
 |---|---|---|
 | Guest image Ubuntu 26.04 สร้างเสร็จแล้ว | `_guest-images.md` → Ubuntu 26.04 ✅ เสร็จ | ต้องสร้าง guest image ก่อน |
-| VM สร้างจาก guest image ที่ผ่าน Set 1-3 ครบ | `image/tmp/nextcloud-build.env` หรือ output ที่ user ส่งมา | สร้าง VM จาก guest image |
+| VM สร้างจาก guest image ที่ผ่าน Set 1-3 ครบ | `build/tmp/nextcloud-build.env` หรือ output ที่ user ส่งมา | สร้าง VM จาก guest image |
 | Build guide พร้อม `[รอ rebuild]` | header tag บน | ต้องปรับ source/docs ให้ตรง baseline นี้ก่อน build |
-| SSH/OpenStack credentials | `image/tmp/nextcloud-build.env` | เติมเฉพาะตอน build แล้วลบทิ้ง |
+| SSH/OpenStack credentials | `build/tmp/nextcloud-build.env` | เติมเฉพาะตอน build แล้วลบทิ้ง |
 
 **เมื่อ SSH เข้า VM แล้ว — verify บน VM:**
 
@@ -153,7 +153,7 @@ chmod 700 /opt/nextcloud/certs
 
 ### 4. คัดลอกไฟล์ static
 
-> **Reference:** Source files อยู่ใน `build/nextcloud/` — ใช้ตรวจสอบหรือ copy โดยตรงก็ได้
+> **Reference:** Source files อยู่ใน `build/apps/nextcloud/` — ใช้ตรวจสอบหรือ copy โดยตรงก็ได้
 
 ไฟล์ที่ต้องวางบน VM ก่อน build image:
 - `docker-compose.yml` → `/opt/nextcloud/docker-compose.yml`

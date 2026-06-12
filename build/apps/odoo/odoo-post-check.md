@@ -11,7 +11,7 @@
 
 | รายการ | สถานะ | หมายเหตุ |
 |---|---|---|
-| Build guide พร้อม | ⏳ pending | `image/build/odoo/odoo.md` |
+| Build guide พร้อม | ⏳ pending | `build/apps/odoo/odoo.md` |
 | Build VM ทำจริง | ⏳ pending | ดู cluster inventory ที่เกี่ยวข้องหลัง build |
 | Cleanup ก่อน capture | ⏳ pending | ต้องไม่มี runtime secret ก่อน snapshot |
 | Capture เป็น Glance image | ⏳ pending | Glance ID — |
@@ -107,4 +107,4 @@ ls -lh /opt/odoo/backups/
 2. SSH เข้า `[odoo-test-vm]`
 3. รันคำสั่งในหัวข้อ Post-Check ทีละข้อ
 4. อัปเดตตาราง Scope เป็น pass/fail หลังทดสอบจริง
-5. ถ้า fail ให้บันทึก incident ใน `image/problem/` และ cluster `problem/` ที่เกี่ยวข้อง โดยไม่ใส่ secret
+5. ถ้า fail ให้บันทึก incident ใน `problem/generic/` และ cluster `problem/` ที่เกี่ยวข้อง โดยไม่ใส่ secret
