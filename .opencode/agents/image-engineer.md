@@ -14,6 +14,14 @@ mode: subagent
 3. เขียน `{app}.md` (self-contained build guide) + source files ทุกอย่าง
 4. ตั้ง header tag: `[พร้อม build]`
 
+## Tools ที่ใช้
+
+| Tool | ใช้เมื่อ |
+|---|---|
+| `context7_*` (Context7 MCP) | ดึง API docs + version migration guide ของ library |
+| `github_*` (GitHub MCP) | เช็ค release tags, changelog, README |
+| `browser_navigate` (Playwright) | ดู demo/doc ของ app ที่มี WAF |
+
 ## กฎห้ามพลาด
 
 - ทุก step ที่สร้างไฟล์ต้องมี comment + คำสั่งจริง (`cat > file << 'EOF'`)

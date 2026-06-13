@@ -222,8 +222,23 @@ EOF
 | component เดิมใช้แล้วพัง ต้องปรับ config | `docs/references/stack-components.md` | แก้ snippet หรือ When/When NOT ของ entry นั้น |
 | พบว่า app ใหม่ใช้ component ในแบบที่ต่างจาก catalog | `docs/references/stack-components.md` | เพิ่ม real-world reference ใน entry นั้น |
 | พบ pattern ใหม่ในการประกอบ component | `docs/references/stack-components.md` | เพิ่ม section ใหม่ (ถ้าเป็น component category ใหม่) |
+| เจอ MCP tool ใหม่ที่ใช้ในการออกแบบ (GitHub, Docker) | `docs/references/stack-components.md` → MCP/Tooling | เพิ่ม entry พร้อม config snippet |
 
 **หลักการ:** เพิ่มเมื่อใช้จริงในการออกแบบ ไม่เพิ่มจากทฤษฎี — ทุก entry ต้องมี app จริงอ้างอิง
+
+---
+
+## Tools สำหรับการออกแบบ
+
+| Tool | ใช้เมื่อ |
+|---|---|
+| `github_*` (GitHub MCP) | เช็ค release tags, changelog, README, search Dockerfiles |
+| `context7_*` (Context7 MCP) | ดึง API docs + version migration guide |
+| `browser_navigate` (Playwright) | ดู demo/doc ของ app ที่มี WAF |
+
+**Config เห็นที่ `opencode.json`** — เพิ่มทีเดียวใช้ได้ทุก agent
+
+---
 
 ---
 

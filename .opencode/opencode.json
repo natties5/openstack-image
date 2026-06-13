@@ -1,5 +1,50 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["docs/AGENTS.md", "docs/AGENT-SPEC.md"],
-  "default_agent": "image-sleuth"
+  "default_agent": "image-sleuth",
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx", "-y", "@playwright/mcp",
+        "--browser", "chromium",
+        "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "--viewport-size", "1920x1080",
+        "--ignore-https-errors"
+      ],
+      "enabled": true
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "enabled": true
+    },
+    "ssh": {
+      "type": "local",
+      "command": ["npx", "-y", "ssh-mcp", "--host=SET_BY_USER", "--user=SET_BY_USER", "--password=SET_BY_USER", "--timeout=300000"],
+      "enabled": true
+    }
+  },
+  "tools": {
+    "playwright_*": false,
+    "context7_*": false,
+    "github_*": false,
+    "ssh_*": false
+  },
+  "agent": {
+    "image-sleuth": {
+      "tools": { "playwright_*": true, "github_*": true }
+    },
+    "image-engineer": {
+      "tools": { "playwright_*": true, "context7_*": true, "github_*": true }
+    },
+    "image-maker": {
+      "tools": { "ssh_*": true }
+    }
+  }
 }

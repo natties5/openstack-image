@@ -94,6 +94,18 @@ build/apps/<app>/
 
 ---
 
+## Web Research Tools
+
+| เครื่องมือ | ใช้เมื่อ |
+|---|---|
+| `webfetch` | เว็บปกติ — ไม่มี WAF |
+| `websearch` | ค้นหาข้อมูลจาก search engine |
+| `browser_navigate` (Playwright MCP) | เว็บมี Cloudflare, WAF, JS challenge — `webfetch` โดน 403 |
+
+> Playwright MCP ต้องเปิด `--user-agent`, `--viewport-size`, `--ignore-https-errors` ใน `opencode.json` ดู `docs/references/stack-components.md` → `tool: playwright-cloudflare-bypass`
+
+---
+
 ## เอกสารที่เกี่ยวข้อง
 
 | เอกสาร | หน้าที่ |

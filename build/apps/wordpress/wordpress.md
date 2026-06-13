@@ -1,4 +1,4 @@
-# WordPress Image — Ubuntu 26.04  [พร้อม build]
+# WordPress Image — Ubuntu 26.04  [built: standalone]
 
 > Image สำเร็จรูป: สร้าง VM → เปิด browser setup WordPress ผ่าน web UI (5 นาที) รองรับ HTTPS
 

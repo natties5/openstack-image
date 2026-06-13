@@ -215,8 +215,70 @@ Sleuth หาข้อมูล — User ตัดสินใจ
 | เจอ community source ใหม่ที่ไม่เคยใช้มาก่อน | Step 1 Search Queries table | เพิ่มแถวใหม่ (แหล่ง + query pattern + sort) |
 | สัญญาณที่เคยใช้เกณฑ์เดิมแล้วไม่แม่น | Step 2 Signal Scoring เกณฑ์ | ปรับ threshold (👍 count, จำนวนแหล่ง) |
 | พบว่าข้อมูลหมดอายุเร็วกว่าที่คิด | Step 1 กฎ Date | ปรับจาก "1+ ปี" เป็นเกณฑ์ที่เหมาะสมกว่า |
+| เจอเว็บมี Cloudflare/WAF — webfetch โดน 403 | ดู **Browser-Based Research** section | ใช้ Playwright MCP + stealth flags bypass |
 
 **หลักการ:** เพิ่มเมื่อพบจาก research จริง ไม่เพิ่มจากทฤษฎี
+
+---
+
+## Browser-Based Research — เข้าเว็บที่มี Cloudflare/WAF
+
+เว็บที่มี Cloudflare, WAF, JS challenge — `webfetch` จะได้ 403 Forbidden ต้องใช้ Playwright MCP (เบราว์เซอร์ Chromium จริง) แทน:
+
+### Config ที่ต้องมีใน `opencode.json`
+
+```json
+"playwright": {
+  "type": "local",
+  "command": [
+    "npx", "-y", "@playwright/mcp",
+    "--browser", "chromium",
+    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...",
+    "--viewport-size", "1920x1080",
+    "--ignore-https-errors"
+  ],
+  "enabled": true
+}
+```
+
+| Flag | เหตุผล |
+|---|---|
+| `--user-agent` | Cloudflare ดู UA — default `HeadlessChrome` ถูกบล็อกทันที ต้องเลียนแบบ Chrome จริง |
+| `--viewport-size` | ขนาดจอ default 800x600 ถูกจับได้ — ต้องใช้ขนาดปกติ |
+| `--ignore-https-errors` | เว็บไทยหลายที่มีปัญหา cert |
+
+### วิธีใช้
+
+1. แก้ `opencode.json` + restart opencode
+2. ใช้ `browser_navigate` แทน `webfetch` — เข้าเว็บได้เลย (JS + Cloudflare challenge ทำงานในเบราว์เซอร์จริง)
+3. `browser_snapshot` อ่านเนื้อหาหลัง render
+
+**ข้อจำกัด:** CAPTCHA รูปภาพ — ไม่ผ่าน (ต้องคน)
+**ผ่านได้:** JS challenge, 5-second shield, browser fingerprinting
+
+---
+
+## GitHub API Research — ค้นข้อมูลโดยตรง
+
+ใช้ `github_*` tools (GitHub MCP) แทน websearch + browser สำหรับข้อมูลจาก GitHub:
+
+| Tool | ใช้แทน |
+|---|---|
+| `github_search_code` | websearch + browser navigate |
+| `github_search_issues` | เปิด GitHub issues ทีละหน้า |
+| `github_get_file_contents` | เปิดไฟล์ README/changelog ทีละไฟล์ |
+| `github_list_releases` | เปิด releases page |
+
+**Config (`opencode.json`):**
+```json
+"github": {
+  "type": "local",
+  "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+  "enabled": true
+}
+```
+
+**Prerequisite:** ตั้ง `GITHUB_PERSONAL_ACCESS_TOKEN` env var ก่อน start opencode (token ฟรี สร้างที่ GitHub → Settings → Developer settings)
 
 ---
 

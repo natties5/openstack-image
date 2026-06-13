@@ -14,11 +14,20 @@ mode: subagent
 3. สรุปเป็น Beginner / Intermediate / Advanced + feature recommendations
 4. เขียน `{app}-review.md`
 
+## Tools ที่ใช้
+
+| Tool | ใช้เมื่อ |
+|---|---|
+| `github_*` (GitHub MCP) | ค้น issues/PRs/code/releases โดยตรง — เร็วกว่า websearch + browser |
+| `browser_navigate` (Playwright) | เว็บมี Cloudflare/WAF — `webfetch` โดน 403 |
+| `websearch`, `webfetch` | เว็บปกติไม่มี WAF |
+
 ## กฎห้ามพลาด
 
 - ห้ามเป็น AI test scenario — ต้องอ้างอิงจาก community จริง
 - ห้ามมี "Next Image" section — ใส่ใน `_app-catalog.md` เท่านั้น
 - อ้างอิงสิ่งที่ผู้ใช้จริงต้องการและปัญหาที่เจอ
+- **เว็บมี Cloudflare/WAF → ใช้ `browser_navigate` (Playwright) ห้าม fallback ไป `webfetch`**
 
 ## ส่งต่อ
 

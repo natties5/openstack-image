@@ -15,6 +15,22 @@ mode: subagent
 3. Verify pre-capture gate 6 ข้อก่อน snapshot
 4. บันทึก errors ใน `{app}-errors.md` ถ้าสั่งผิด
 
+## Tools ที่ใช้
+
+| Tool | ใช้เมื่อ |
+|---|---|
+| `ssh_*` (SSH MCP) | SSH เข้า VM — `ssh_connect` + `ssh_exec` รัน build pipeline อัตโนมัติ |
+| `bash` (native) | คำสั่งที่ต้องการ interactive เช่น docker CLI บน VM |
+
+## SSH Credentials
+
+ก่อน build — user ตั้ง env vars (ไม่เขียนลงไฟล์ ปิด terminal = หาย):
+```powershell
+$env:BUILD_VM_HOST="10.0.0.5"
+$env:BUILD_VM_USER="ubuntu"
+$env:BUILD_VM_PASS="temp123"
+```
+
 ## กฎห้ามพลาด
 
 - VERIFY ก่อนเขียน sed ทุกครั้ง — grep ของจริงบน VM ก่อน

@@ -260,6 +260,105 @@ systemctl enable <app>
 
 ---
 
+## MCP / Tooling Components
+
+### tool: playwright-cloudflare-bypass
+
+**When to use:** website ที่ research ต้องการมี Cloudflare, WAF, JS challenge — `webfetch` โดน 403
+
+**When NOT:** website ปกติไม่มี WAF (ใช้ `webfetch` พอแล้ว), website มี CAPTCHA รูปภาพ (Playwright ก็ไม่ผ่าน)
+
+**MCP config snippet (`opencode.json`):**
+```json
+"playwright": {
+  "type": "local",
+  "command": [
+    "npx", "-y", "@playwright/mcp",
+    "--browser", "chromium",
+    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "--viewport-size", "1920x1080",
+    "--ignore-https-errors"
+  ],
+  "enabled": true
+}
+```
+
+| Flag | เหตุผล |
+|---|---|
+| `--user-agent` | เลียนแบบ Chrome จริง — Cloudflare บล็อก `HeadlessChrome` default |
+| `--viewport-size` | เลียนแบบจอปกติ — 800x600 ถูก fingerprint ได้ |
+| `--ignore-https-errors` | เผื่อ cert issue (พบบ่อยกับเว็บไทย) |
+
+**Agent tools ที่ต้องเปิด:** `playwright_*`
+```json
+"agent": {
+  "image-sleuth": { "tools": { "playwright_*": true } },
+  "image-engineer": { "tools": { "playwright_*": true } }
+}
+```
+
+**ใช้งาน:** `browser_navigate` แทน `webfetch` — Chromium จริงรัน JS + bypass Cloudflare ได้
+
+**Real-world:** openlandscape.cloud (Cloudflare, 403 via webfetch, ผ่านด้วย Playwright)
+
+---
+
+### tool: github-mcp
+
+**When to use:** ต้องการค้นข้อมูลจาก GitHub API โดยตรง — search code, issues, PRs, releases, file contents
+
+**When NOT:** ข้อมูลไม่ได้อยู่บน GitHub, ต้องการ read/write repo (ใช้ git CLI ผ่าน bash ดีกว่า)
+
+**MCP config snippet:**
+```json
+"github": {
+  "type": "local",
+  "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+  "enabled": true
+}
+```
+
+**Prerequisite:** `GITHUB_PERSONAL_ACCESS_TOKEN` env var (ฟรี สร้างที่ GitHub → Settings → Developer settings)
+
+**Agent:** `image-sleuth` (search issues/PRs), `image-engineer` (check releases/tags)
+
+**Real-world:** Sleuth ค้น community issues ก่อนเขียน review, Engineer เช็ค release tags ก่อน pin version
+
+---
+
+### tool: ssh-mcp
+
+**When to use:** Maker ต้องการ SSH เข้า VM รัน build pipeline อัตโนมัติ — แทนการ copy-paste คำสั่ง
+
+**When NOT:** build แบบ manual (user รันเองตาม guide), ไม่มี VM ให้ SSH
+
+**MCP config snippet:**
+```json
+"ssh": {
+  "type": "local",
+  "command": ["npx", "-y", "ssh-mcp",
+    "--host", "${env:BUILD_VM_HOST}",
+    "--port", "22",
+    "--user", "${env:BUILD_VM_USER}",
+    "--password", "${env:BUILD_VM_PASS}",
+    "--timeout", "300000"],
+  "enabled": true
+}
+```
+
+**Credentials:** ตั้ง env vars ก่อน start opencode — ไม่เขียนลงไฟล์, ปิด terminal = หาย:
+```powershell
+$env:BUILD_VM_HOST="10.0.0.5"
+$env:BUILD_VM_USER="ubuntu"
+$env:BUILD_VM_PASS="temp123"
+```
+
+**Agent:** `image-maker`
+
+**Real-world:** Maker SSH build Odoo/WordPress/Nextcloud image บน VM แบบ end-to-end
+
+---
+
 ## How to Add New Component
 
 เมื่อ build app ใหม่แล้วพบว่าต้องมี component ที่ยังไม่มีใน catalog:

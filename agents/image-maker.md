@@ -254,8 +254,41 @@ Maker รันตาม guide ทุกตัวอักษร — ถ้า�
 | เจอ error type ใหม่ที่ไม่เคยอยู่ใน handoff | Handoff rules table | เพิ่มแถวใหม่ (ปัญหา + ส่งให้ + เหตุผล) |
 | พบว่า mirror ไทยเปลี่ยน (ย้าย URL, เพิ่ม/หาย) | Mirror availability + method matrix | แก้ URL และ availability status |
 | เจอ repo format ใหม่ที่ไม่รู้จัก | VERIFY ก่อนเขียน sed table | เพิ่ม OS + repo format + ตัวอย่างของจริง |
+| ใช้ SSH MCP build สำเร็จ — เจอ pattern ใหม่ | ดู **SSH Build Automation** section | เพิ่ม best practice |
 
 **หลักการ:** เพิ่มเมื่อเจอจาก build จริง ไม่เพิ่มจากทฤษฎี — ทุก entry ต้อง verify บน VM จริงแล้ว
+
+---
+
+## SSH Build Automation
+
+ใช้ `ssh_*` tools (SSH MCP) SSH เข้า VM รัน build pipeline อัตโนมัติ:
+
+| Tool | ขั้นตอน |
+|---|---|
+| `ssh_connect` | ต่อ VM |
+| `ssh_exec` | รันคำสั่ง build ทีละ step |
+| `ssh_upload` | อัปโหลด bootstrap ไฟล์ |
+| `ssh_download` | ดาวน์โหลดผลลัพธ์ |
+
+### Credentials — Temp เท่านั้น
+
+ผู้ใช้ตั้ง env vars ก่อน build (ไม่เขียนลงไฟล์, ปิด terminal = หาย):
+```powershell
+# PowerShell
+$env:BUILD_VM_HOST="10.0.0.5"
+$env:BUILD_VM_USER="ubuntu"
+$env:BUILD_VM_PASS="temp123"
+```
+
+### Verify หลัง Build
+
+หลัง build — ใช้ `ssh_*` tools SSH เข้า VM verify โดยตรง:
+- `ssh_exec "docker ps"` — เช็ค containers running
+- `ssh_exec "docker logs"` — ดู logs
+- `ssh_exec "systemctl status"` — เช็ค services
+
+---
 
 ---
 
