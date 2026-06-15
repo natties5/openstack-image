@@ -9,7 +9,7 @@
 OpenStack Image คือ domain รวมศูนย์สำหรับการสร้าง และบริหารจัดการ **golden images** ที่ใช้งานจริง เช่น:
 
 - **Guest images** — OS พื้นฐาน (Ubuntu, Debian, Rocky, AlmaLinux, etc.) ให้ลูกค้าสร้าง VM จาก
-- **App images** — OS + application stack พร้อมใช้ (WordPress, Nextcloud, Odoo, n8n)
+- **App images** — OS + application stack พร้อมใช้ (WordPress, Nextcloud, Odoo, Docker Platform, Grafana+Prometheus, n8n) และ candidate ใหม่ เช่น Vaultwarden, AnythingLLM, Umami
 - **Build pipeline** — ขั้นตอน, automation, testing สำหรับการ capture images
 - **References** — mirror config, cloud-init templates, troubleshooting
 
@@ -59,6 +59,8 @@ openstack-image/
 │   │   │   └── 99-wordpress-image
 │   │   ├── nextcloud/
 │   │   ├── odoo/
+│   │   ├── docker-platform/
+│   │   ├── grafana-prometheus/
 │   │   └── n8n/
 │   ├── templates/              (ว่าง — reusable app templates)
 │   └── tmp/                    (temp env files ระหว่าง build — gitignored)
@@ -84,11 +86,14 @@ openstack-image/
 | ประเภท | คำอธิบาย | ไฟล์ | สถานะ |
 |---|---|---|---|
 | **Guest images** | OS พื้นฐาน (9 OS) — cleanup + cloud-init พร้อม | `build/_guest-images.md` | ⚠️ pipeline |
-| **App catalog** | Overview app status + wishlist + priority | `build/_app-catalog.md` | ✅ |
-| **WordPress** | CMS — MariaDB + PHP-FPM + Nginx | `build/apps/wordpress/` | ✅ พร้อม build |
-| **Nextcloud** | File sync — PostgreSQL + Redis + Nginx | `build/apps/nextcloud/` | ⚠️ รอ rebuild |
-| **Odoo** | ERP/CRM — PostgreSQL + Odoo 18 + Nginx | `build/apps/odoo/` | ✅ พร้อม build |
-| **n8n** | Workflow automation — PostgreSQL + Nginx | `build/apps/n8n/` | ❌ รอเติมเนื้อหา |
+| **App catalog** | Overview app status + latest upstream + wishlist + priority | `build/_app-catalog.md` | ✅ updated 2026-06-14 |
+| **WordPress** | CMS — MariaDB + PHP-FPM + Nginx | `build/apps/wordpress/` | ✅ built standalone; target เก่าต้อง rebuild latest |
+| **Nextcloud** | File sync — PostgreSQL + Redis + Nginx | `build/apps/nextcloud/` | ⚠️ built เดิม แต่รอ source sync/rebuild |
+| **Odoo** | ERP/CRM — PostgreSQL + Odoo 18 guide; upstream 19 | `build/apps/odoo/` | ✅ พร้อม build; optional upgrade |
+| **Docker Platform** | Web stack — Docker CE + Portainer + Nginx Proxy Manager | `build/apps/docker-platform/` | ✅ พร้อม build |
+| **Grafana+Prometheus** | Monitoring — VM / Website / Service monitoring | `build/apps/grafana-prometheus/` | ✅ พร้อม build |
+| **n8n** | Workflow automation — PostgreSQL + Nginx | `build/apps/n8n/` | ❌ รอเติม source |
+| **Candidate images** | Vaultwarden, AnythingLLM, Umami, Chatwoot, NocoDB, Coolify, Flowise, Dify, Plane | `build/_app-catalog.md` | 🧭 research แล้ว / ยังไม่มี source |
 
 ---
 
@@ -270,5 +275,5 @@ Golden-image persistent:
 
 ---
 
-**Last updated:** 2026-06-12  
+**Last updated:** 2026-06-14
 **Format:** OpenStack Image Domain (Restructured)

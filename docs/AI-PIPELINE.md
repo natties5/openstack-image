@@ -175,6 +175,32 @@ echo "volumes: absent"
 | Base OS | Ubuntu 26.04 หรือ Debian 13 |
 | Docker images | `n8nio/n8n`, `postgres:15` |
 
+### Docker Platform — ✅ พร้อม build
+
+| รายการ | ค่า |
+|---|---|
+| Build guide | `build/apps/docker-platform/docker-platform.md` |
+| Header tag | `[พร้อม build]` |
+| Base OS | Ubuntu 26.04 |
+| Docker images | `portainer/portainer-ce:lts`, `jc21/nginx-proxy-manager:latest`, `postgres:17-alpine`, `mariadb:lts`, `redis:7-alpine`, `nginx:stable-alpine` |
+| Minimum flavor | 1 vCPU / 2GB RAM / 15GB disk |
+| Special notes | Docker CE official repo, Compose plugin, Buildx, Portainer HTTPS `9443`, Nginx Proxy Manager `80/81/443`, credentials file on first boot |
+
+### Grafana+Prometheus — ✅ พร้อม build
+
+| รายการ | ค่า |
+|---|---|
+| Build guide | `build/apps/grafana-prometheus/grafana-prometheus.md` |
+| Deploy guide | `build/apps/grafana-prometheus/grafana-prometheus-deploy.md` |
+| Post-check | `build/apps/grafana-prometheus/grafana-prometheus-post-check.md` |
+| Header tag | `[พร้อม build]` |
+| Base OS | Ubuntu 26.04 |
+| Docker images | `grafana/grafana:latest`, `prom/prometheus:latest`, `prom/alertmanager:latest`, `prom/node-exporter:latest`, `prom/blackbox-exporter:latest`, `nginx:stable-alpine`, optional `gcr.io/cadvisor/cadvisor:latest` |
+| Minimum flavor | 2 vCPU / 2GB RAM / 15GB disk |
+| Special notes | Self-service VM / Website / Service monitoring, first boot random Grafana password, `monitoring-reset-grafana-password`, file_sd target helpers, public only Nginx TCP 80, Prometheus/Alertmanager localhost only, no provider discovery/log/tracing stack |
+
+**Deploy + post-test only:** OpenStack capture/Glance/server ID/image ID เป็นงานของ user/admin ภายนอก pipeline นี้ ห้ามบันทึกค่าเหล่านั้นลง docs กลาง
+
 ---
 
 ## Part 3: SSH Helper Template

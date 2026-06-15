@@ -1,0 +1,20 @@
+#!/bin/sh
+cat << 'EOF'
+
+Grafana+Prometheus Monitoring Image
+------------------------------------
+Grafana: http://<VM-IP>/
+
+Read generated login info:
+  sudo monitoring-info
+
+Useful commands:
+  sudo monitoring-status
+  sudo monitoring-list-targets
+  sudo monitoring-add-http https://example.com website
+  sudo monitoring-reset-grafana-password
+
+Docs:
+  /root/README-grafana-prometheus-image.txt
+
+EOF

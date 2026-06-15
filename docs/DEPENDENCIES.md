@@ -10,7 +10,9 @@
 |---|---|---|---|
 | `build/_guest-images.md` (guest image status) | `docs/README.md` | Update status table | HIGH |
 | | `docs/AGENTS.md` (mirror matrix section) | If new OS or mirror discovered | MEDIUM |
-| `build/_app-catalog.md` (app status) | `docs/README.md` | Update status table | HIGH |
+| `build/_app-catalog.md` (app status/latest upstream/priority) | `docs/README.md` | Update status table | HIGH |
+| | `docs/references/stack-components.md` | If new app category implies reusable stack pattern | MEDIUM |
+| | `build/apps/{app}/{app}-review.md` | If promoting wishlist app to build candidate | MEDIUM |
 | `build/apps/{app}/{app}-review.md` | `build/_app-catalog.md` | Mark as "has review" if new | MEDIUM |
 | `docs/references/mirrors.md` (mirror config) | `docs/AGENTS.md` (mirror matrix section) | Update with new mirror info | HIGH |
 | | `build/_guest-images.md` (if mirror changed) | Update guest image build steps | MEDIUM |
@@ -123,6 +125,7 @@
 | Mistake | Impact | Fix |
 |---|---|---|
 | ✅ Update `build/_app-catalog.md` but forget `docs/README.md` | Status table out of sync | Always update both |
+| ✅ Add new catalog category but forget `stack-components.md` | Engineer has no reusable pattern | Add category pattern if based on real research/build |
 | ✅ Change mirror but forget to update `docs/AGENTS.md` | Mirror matrix outdated | Update dependency immediately |
 | ✅ Create new guest image but forget to update `docs/README.md` | Broken quick links | Update overview doc |
 | ✅ Commit `build/tmp/*.env` to git | Secret leakage | Add to `.gitignore` + regenerate secrets |
@@ -156,7 +159,7 @@ If any [ ] is empty → fix before commit!
 
 | Path | สถานะ | หมายเหตุ |
 |---|---|---|
-| `build/apps/{app}/` | ✅ มี | n8n, nextcloud, odoo, wordpress |
+| `build/apps/{app}/` | ✅ มี | docker-platform, grafana-prometheus, n8n, nextcloud, odoo, wordpress |
 | `build/_app-catalog.md` | ✅ มี | |
 | `build/_guest-images.md` | ✅ มี | |
 | `build/templates/` | ⚠️ มีแต่ว่างเปล่า | ยังไม่มี template ไฟล์ |
@@ -190,6 +193,6 @@ Key files to check dependencies:
 
 ---
 
-**Version:** 2026-06-12  
+**Version:** 2026-06-14
 **Purpose:** Help AI + users track which files must be updated together  
 **Use:** Before every commit, consult this document

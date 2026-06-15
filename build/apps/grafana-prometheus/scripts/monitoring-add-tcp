@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+FILE=/opt/monitoring/prometheus/targets/tcp.yml
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Run with sudo: sudo monitoring-add-tcp <host:port> <name>" >&2
+  exit 1
+fi
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: sudo monitoring-add-tcp 10.0.0.20:5432 postgres-01" >&2
+  exit 1
+fi
+
+target="$1"
+name="$2"
+
+cat >> "$FILE" << EOF
+- targets:
+    - $target
+  labels:
+    name: $name
+    role: tcp
+EOF
+
+monitoring-reload
+echo "Added TCP target: $name -> $target"

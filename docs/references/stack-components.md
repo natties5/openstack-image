@@ -131,6 +131,66 @@ cache:
 
 ## App Runtime Components
 
+### monitoring: prometheus-grafana
+
+**When to use:** image ต้องการ self-service VM / website / service monitoring พร้อม dashboard และ alerting
+
+**When NOT:** user ต้องการ log aggregation/tracing เป็นหลัก, หรือ monitoring ถูกผูกกับ provider control plane/credential เฉพาะ
+
+**docker-compose pattern:**
+```yaml
+services:
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+      - --web.enable-lifecycle
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus:/etc/prometheus:ro
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    restart: unless-stopped
+    pid: host
+    command:
+      - --path.rootfs=/host
+    volumes:
+      - /:/host:ro,rslave
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    restart: unless-stopped
+```
+
+**Self-service requirements:**
+- First boot generate random Grafana admin password ต่อ VM
+- Reboot ห้ามเปลี่ยน password
+- มี `monitoring-reset-grafana-password` สำหรับกรณีลืม password
+- เพิ่ม targets ผ่าน file_sd + helper scripts ไม่บังคับ user แก้ YAML เองตั้งแต่แรก
+- Public expose เฉพาะ reverse proxy; Prometheus/Alertmanager/exporters ไม่ควร expose public
+- Prometheus TSDB ใช้ local volume/disk ไม่ใช้ NFS/SMB/EFS-like storage
+
+**Real-world:** Grafana+Prometheus
+
+---
+
 ### app: php-fpm
 
 **When to use:** app เขียนด้วย PHP (WordPress, Nextcloud, Moodle)
@@ -225,7 +285,195 @@ app:
 
 ---
 
-## Non-Docker Components
+## Research-Backed Candidate Patterns
+
+> Pattern กลุ่มนี้มาจาก catalog research วันที่ 2026-06-14 ยังไม่ถือเป็น real-world built component จนกว่าจะมี `build/apps/{app}/` ที่ build สำเร็จ
+
+### pattern: ai-rag-no-gpu
+
+**When to use:** app image กลุ่ม AI/RAG ที่ต้องใช้ได้บน VM ไม่มี GPU โดยใช้ external LLM API เป็น default และ optional local Ollama CPU สำหรับโมเดลเล็ก
+
+**When NOT:** user คาดหวัง inference เร็วระดับ production local LLM, ต้องรัน 7B+ หลาย concurrent users, หรือต้องการ air-gapped performance สูงโดยไม่มี GPU
+
+**Candidate apps:** AnythingLLM, Flowise, Dify CE, Open WebUI, LiteLLM Proxy
+
+**Design rules:**
+- Default image ต้อง boot ได้โดยไม่ต้องมี GPU และไม่ pull model ใหญ่ตอน first boot
+- แยก `APP_SECRET`, API keys, model provider config ออกจาก golden image; สร้าง/รับค่าตอน first boot
+- ถ้าใช้ external API ให้เปิด UI เพื่อใส่ key ภายหลัง หรือเก็บ key ใน `/root/{app}-credentials.txt` เฉพาะตอน user ตั้งเอง
+- ถ้า optional Ollama CPU ให้ระบุชัดว่า 1B-4B model เหมาะกับ 4-8 GB RAM; 7B ต้อง 8-16 GB RAM และช้า
+- ห้ามโฆษณาว่า “offline AI เร็ว” ถ้าไม่มี GPU; ให้ใช้คำว่า “CPU-capable / API-provider ready”
+
+**Base compose shape:**
+```yaml
+services:
+  app:
+    image: <ai-app-image>:<version>
+    restart: unless-stopped
+    environment:
+      APP_SECRET: ${APP_SECRET}
+      # Provider keys are optional and should be added after first boot.
+    volumes:
+      - app_data:/app/data
+    ports:
+      - "3000:3000"
+
+volumes:
+  app_data:
+```
+
+**Resource floor:** UI/RAG app only 1-2 vCPU, 2-4 GB RAM; Dify-class full stack 2+ vCPU, 4-8 GB RAM
+
+**Research references:** AnythingLLM, Flowise, Dify, Open WebUI docs/release pages checked 2026-06-14
+
+---
+
+### pattern: lightweight-saas-replacement
+
+**When to use:** app image ที่แทน SaaS per-seat/per-usage ได้ชัด เช่น password manager, analytics, helpdesk, Airtable-like DB, project management
+
+**When NOT:** app ต้องผูก domain/SMTP/payment provider จำนวนมากจน first boot ใช้งานไม่ได้, หรือ CE มี feature จำกัดจนไม่พอใช้งานจริง
+
+**Candidate apps:** Vaultwarden, Umami, Chatwoot CE, NocoDB, Plane CE, Cal.com, Coolify
+
+**Design rules:**
+- First boot ต้องสร้าง admin password/token ต่อ VM และเขียน credential ไว้ที่ `/root/{app}-credentials.txt` ด้วย `chmod 600`
+- ถ้า browser feature บังคับ HTTPS เช่น Vaultwarden Web Crypto ให้บอกชัดว่า HTTP ใช้ evaluate ได้ แต่ production ต้องมี domain/HTTPS
+- ถ้า app ต้อง SMTP ให้ boot ได้ก่อนโดย SMTP optional; UI/admin ค่อยตั้งภายหลัง
+- ใช้ SQLite เมื่อ upstream แนะนำและเหมาะกับ small team; ใช้ PostgreSQL เมื่อ app/scale ต้องการ
+- ไม่เปิด admin/internal ports public ถ้าไม่จำเป็น; bind DB/Redis เฉพาะ Docker network
+
+**Base compose shape:**
+```yaml
+services:
+  app:
+    image: <saas-replacement-image>:<version>
+    restart: unless-stopped
+    environment:
+      APP_URL: ${APP_URL:-http://localhost}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    volumes:
+      - app_data:/data
+    ports:
+      - "80:80"
+
+volumes:
+  app_data:
+```
+
+**Resource floor:** lightweight single-container apps 1 vCPU, 512 MB-1 GB RAM; Rails/Django multi-service apps 2-4 vCPU, 4 GB RAM
+
+**Research references:** Vaultwarden, Umami, Chatwoot, Plane, Coolify docs/release pages checked 2026-06-14
+
+---
+
+## Host / Non-Docker Components
+
+### host: docker-ce
+
+**When to use:** image เป็น general-purpose Docker host หรือ app guide ต้องการ Docker Engine บน VM โดยตรง
+
+**When NOT:** app ใช้ systemd-native โดยไม่ต้องรัน container, หรือ platform ใช้ managed Kubernetes/container service อยู่แล้ว
+
+**Install snippet:**
+```bash
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+cat > /etc/apt/sources.list.d/docker.sources << EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+apt update
+apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+systemctl enable --now docker
+```
+
+**Daemon defaults:**
+```json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+```
+
+**Security notes:** Docker group เป็น root-equivalent; Docker published ports อาจ bypass UFW rules ให้ใช้ OpenStack security group และ `DOCKER-USER` เมื่อต้อง restrict source
+
+**Real-world:** Docker Platform, WordPress, Nextcloud, Odoo
+
+---
+
+### ui: portainer-ce
+
+**When to use:** ต้องการ Web UI สำหรับจัดการ Docker host ให้ beginner/SMB ใช้ง่าย
+
+**When NOT:** ต้องการ minimal hardened host, ไม่ต้องการ expose admin UI, หรือใช้ orchestrator/management platform อื่นแล้ว
+
+**docker-compose snippet:**
+```yaml
+services:
+  portainer:
+    image: portainer/portainer-ce:lts
+    container_name: portainer
+    restart: always
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
+    name: portainer_data
+```
+
+**Security notes:** Portainer mount `/var/run/docker.sock` จึงควบคุม Docker host ได้ทั้งหมด; เปิดเฉพาะ `9443` default, ไม่เปิด `8000` Edge tunnel ถ้าไม่ได้ใช้ Edge Agents
+
+**Real-world:** Docker Platform
+
+---
+
+### ui: nginx-proxy-manager
+
+**When to use:** ลูกค้าทั่วไปต้องการ Web UI สำหรับจัด domain, reverse proxy, และ Let's Encrypt cert โดยไม่ต้องเขียน Nginx config เอง
+
+**When NOT:** ต้องการ minimal host, ต้องการ config-as-code ล้วน, หรือทีมถนัด Caddy/Traefik มากกว่า Web UI
+
+**docker-compose snippet:**
+```yaml
+services:
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    environment:
+      TZ: ${TZ:-Asia/Bangkok}
+      DISABLE_IPV6: "true"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+```
+
+**Security notes:** เปิด `80/443` public สำหรับเว็บ, จำกัด `81` เฉพาะ admin IP; upstream default login คือ `admin@example.com` / `changeme` และควรให้ bootstrap เปลี่ยนผ่าน API ก่อนส่ง credentials ให้ลูกค้า
+
+**Real-world:** Docker Platform
+
+---
 
 ### systemd-native
 
@@ -372,5 +620,5 @@ $env:BUILD_VM_PASS="temp123"
 
 ---
 
-**Version:** 2026-06-12
+**Version:** 2026-06-14
 **Referenced by:** `agents/image-engineer.md`
