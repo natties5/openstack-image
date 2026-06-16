@@ -17,21 +17,22 @@ Catalog นี้ใช้ข้อมูลที่ตรวจได้จร
 | `Image Target` | version/stack ที่ guide หรือ source ใน repo ตั้งใจ build จริง |
 | `Upstream Signal` | version ล่าสุดหรือ signal ล่าสุดที่ตรวจจาก upstream วันนี้ ยังไม่ได้แปลว่า image build แล้ว |
 | `Minimum Size` | baseline สำหรับ VM เล็กสุดที่ควรเริ่มทดสอบ ไม่ใช่ sizing สำหรับ production traffic |
+| `Manifest` | link ไป `build/apps/{app}/{app}-build-manifest.md`; ถ้ายังไม่มีให้ใส่ `pending` |
 | `Next Action` | สิ่งถัดไปที่ต้องทำเพื่อให้ build/rebuild ได้จริง |
 
 ---
 
 ## Current Repo Images
 
-| App | Category | Repo Status | Repo Folder | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
-|---|---|---|---|---|---|---|---|---|
-| **WordPress** | CMS / Blog | built: standalone | `build/apps/wordpress/` | `wordpress:php8.3-fpm` + MariaDB + Nginx | WordPress 7.0 latest; 6.9.4 security branch | PHP-FPM + MariaDB + Nginx | 1 vCPU / 1 GB / 10 GB | Decide target line: latest 7.0 vs 6.9 security branch, then rebuild if needed |
-| **WooCommerce** | E-Commerce | พร้อม build | `build/apps/woocommerce/` | WordPress + WooCommerce bootstrap | WooCommerce 10.8.1 | PHP-FPM + MariaDB + Nginx + WP-CLI | 2 vCPU / 2 GB / 15 GB | Build ecommerce image แยกจาก WordPress |
-| **Nextcloud** | Collaboration / File Sharing | built เดิม แต่ source target เก่า | `build/apps/nextcloud/` | source ใช้ `nextcloud:30.0-apache` | Nextcloud 34.0.0 | Nextcloud Apache + PostgreSQL + Redis + Nginx | 2 vCPU / 2 GB / 20 GB | Sync source เป็น target ใหม่ก่อน rebuild |
-| **Odoo** | Business / ERP / CRM | พร้อม build | `build/apps/odoo/` | `odoo:18.0` + PostgreSQL + Nginx | Odoo 19 stable/recommended ต้อง verify จาก official docs ก่อนเปลี่ยน target | Python/Odoo + PostgreSQL + Nginx | 2 vCPU / 2-4 GB / 20 GB | ใช้ Odoo 18 guide ต่อ หรือทำ review ก่อน upgrade เป็น 19 |
-| **Docker Platform** | DevOps / Platform | พร้อม build | `build/apps/docker-platform/` | Docker CE + Portainer + Nginx Proxy Manager | Portainer 2.39.3 LTS; Nginx Proxy Manager 2.15.1 | Docker CE + Portainer + NPM | 1 vCPU / 2 GB / 15 GB | Verify image tags/pins แล้ว build |
-| **Grafana+Prometheus** | Monitoring / Analytics | built: standalone; post-test PASS; cleanup-ready | `build/apps/grafana-prometheus/` | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | Capture/Glance ตาม admin workflow |
-| **n8n** | Automation / AI no-GPU | รอเติม source | `build/apps/n8n/` | skeleton guide only | n8n 2.25.7 | Node.js + PostgreSQL + Nginx | 1-2 vCPU / 2 GB / 10 GB | สร้าง source files ให้ครบก่อน build |
+| App | Category | Repo Status | Repo Folder | Image Target | Upstream Signal | Stack | Minimum Size | Manifest | Next Action |
+|---|---|---|---|---|---|---|---|---|---|
+| **WordPress** | CMS / Blog | built: standalone | `build/apps/wordpress/` | `wordpress:php8.3-fpm` + MariaDB + Nginx | WordPress 7.0 latest; 6.9.4 security branch | PHP-FPM + MariaDB + Nginx | 1 vCPU / 1 GB / 10 GB | [`manifest`](apps/wordpress/wordpress-build-manifest.md) | Decide target line: latest 7.0 vs 6.9 security branch, then rebuild if needed |
+| **WooCommerce** | E-Commerce | พร้อม build | `build/apps/woocommerce/` | WordPress + WooCommerce bootstrap | WooCommerce 10.8.1 | PHP-FPM + MariaDB + Nginx + WP-CLI | 2 vCPU / 2 GB / 15 GB | [`manifest`](apps/woocommerce/woocommerce-build-manifest.md) | Build ecommerce image แยกจาก WordPress |
+| **Nextcloud** | Collaboration / File Sharing | built เดิม แต่ source target เก่า | `build/apps/nextcloud/` | source ใช้ `nextcloud:30.0-apache` | Nextcloud 34.0.0 | Nextcloud Apache + PostgreSQL + Redis + Nginx | 2 vCPU / 2 GB / 20 GB | [`manifest`](apps/nextcloud/nextcloud-build-manifest.md) | Sync source เป็น target ใหม่ก่อน rebuild |
+| **Odoo** | Business / ERP / CRM | พร้อม build | `build/apps/odoo/` | `odoo:18.0` + PostgreSQL + Nginx | Odoo 19 stable/recommended ต้อง verify จาก official docs ก่อนเปลี่ยน target | Python/Odoo + PostgreSQL + Nginx | 2 vCPU / 2-4 GB / 20 GB | [`manifest`](apps/odoo/odoo-build-manifest.md) | ใช้ Odoo 18 guide ต่อ หรือทำ review ก่อน upgrade เป็น 19 |
+| **Docker Platform** | DevOps / Platform | พร้อม build | `build/apps/docker-platform/` | Docker CE + Portainer + Nginx Proxy Manager | Portainer 2.39.3 LTS; Nginx Proxy Manager 2.15.1 | Docker CE + Portainer + NPM | 1 vCPU / 2 GB / 15 GB | [`manifest`](apps/docker-platform/docker-platform-build-manifest.md) | Verify image tags/pins แล้ว build |
+| **Grafana+Prometheus** | Monitoring / Analytics | built: standalone; post-test PASS; cleanup-ready | `build/apps/grafana-prometheus/` | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | [`manifest`](apps/grafana-prometheus/grafana-prometheus-build-manifest.md) | Capture/Glance ตาม admin workflow |
+| **n8n** | Automation / AI no-GPU | รอเติม source | `build/apps/n8n/` | skeleton guide only | n8n 2.25.7 | Node.js + PostgreSQL + Nginx | 1-2 vCPU / 2 GB / 10 GB | [`manifest`](apps/n8n/n8n-build-manifest.md) | สร้าง source files ให้ครบก่อน build |
 
 ---
 

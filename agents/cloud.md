@@ -261,6 +261,7 @@ Reboot test เป็น optional final gate: ต้องถาม user/admin �
 - **สถานะ:** ผ่าน / พัง
 - **Errors:** X ข้อ (ดู {app}-errors.md)
 - **Header tag:** [built: standalone] หรือ [build ล้มเหลว]
+- **Build manifest:** `build/apps/{app}/{app}-build-manifest.md` ถ้าผ่าน; ถ้าพังไม่สร้าง/ไม่อัปเดต
 
 ### Pre-Capture Gate
 #### Layer 1 — Generic
@@ -281,6 +282,28 @@ Reboot test เป็น optional final gate: ต้องถาม user/admin �
 ถ้าผ่าน → อัปเดต docs
 ถ้าพัง → ดู handoff rules ด้านบน
 ```
+
+### Build Manifest Rule
+
+หลัง pre-capture gate ผ่าน ให้สร้าง/อัปเดต `build/apps/{app}/{app}-build-manifest.md` จาก `build/_build-manifest-template.md`:
+
+```bash
+lsb_release -ds
+docker version
+docker compose version
+docker buildx version
+dpkg-query -W docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+docker images --digests --format '{{.Repository}}:{{.Tag}} {{.Digest}}'
+```
+
+เก็บเฉพาะ version history ของ golden image build:
+- App, status, build date `YYYY-MM-DD`, Base OS เช่น `Ubuntu 26.04`
+- Docker stack package versions แบบ minimal
+- Docker/Compose/Buildx versions
+- Container image tag + digest ที่ verify ได้จริง
+- Build notes/changelog สั้นๆ
+
+ห้ามเก็บ image name, Glance ID, server ID, floating IP, VM IP, hostname, OpenStack project/user/auth context, password, token, private key หรือ runtime credentials. ถ้า build ล้มเหลว ให้บันทึก `{app}-errors.md` เท่านั้น ไม่สร้าง manifest ใหม่. Post-test VM จาก image ไม่แก้ manifest.
 
 ---
 

@@ -1,5 +1,4 @@
 # n8n Workflow Automation Image — Ubuntu 26.04  [รอเติมเนื้อหา]
-
 > Image สำเร็จรูป: สร้าง VM → n8n พร้อมใช้ทันทีที่ `http://<IP>:5678` รองรับ HTTPS
 
 ---
@@ -176,3 +175,20 @@ ubuntu-24.04-n8n-workflow-https-ready-YYYYMM
 - ห้ามเปลี่ยน `N8N_ENCRYPTION_KEY` หลังสร้าง credentials ใน n8n
 - ห้าม `docker compose down -v` บนเครื่องลูกค้า — ลบ volume PostgreSQL/n8n data
 - Snapshot VM → VM ใหม่จะเป็น clone (data เดิม) ไม่ใช่ fresh instance
+
+---
+
+## Record Build Manifest
+
+หลัง pre-capture gate ผ่าน ให้สร้าง/อัปเดต `build/apps/n8n/n8n-build-manifest.md` ด้วยข้อมูล version ที่ verify จาก golden-image VM เท่านั้น:
+
+```bash
+lsb_release -ds
+docker version
+docker compose version
+docker buildx version
+dpkg-query -W docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+docker images --digests --format '{{.Repository}}:{{.Tag}} {{.Digest}}'
+```
+
+เก็บเฉพาะ Base OS, Docker stack package versions แบบ minimal, Docker/Compose/Buildx versions, container image tag + digest และ build notes สั้นๆ. ห้ามเก็บ image name, Glance ID, server ID, floating IP, VM IP, hostname, OpenStack context หรือ credentials.

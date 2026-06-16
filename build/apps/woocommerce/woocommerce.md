@@ -1,5 +1,4 @@
 # WooCommerce Image — Ubuntu 26.04  [พร้อม build]
-
 > Image สำเร็จรูปสำหรับร้านค้าออนไลน์: สร้าง VM -> bootstrap สร้าง WordPress + ติดตั้ง WooCommerce -> เข้า `/wp-admin/` เพื่อทำ setup ร้านค้า
 
 ---
@@ -745,3 +744,20 @@ build/apps/woocommerce/woocommerce-cron.timer
 build/apps/woocommerce/README-woocommerce-image.txt
 build/apps/woocommerce/99-woocommerce-image
 ```
+
+---
+
+## Record Build Manifest
+
+หลัง pre-capture gate ผ่าน ให้สร้าง/อัปเดต `build/apps/woocommerce/woocommerce-build-manifest.md` ด้วยข้อมูล version ที่ verify จาก golden-image VM เท่านั้น:
+
+```bash
+lsb_release -ds
+docker version
+docker compose version
+docker buildx version
+dpkg-query -W docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+docker images --digests --format '{{.Repository}}:{{.Tag}} {{.Digest}}'
+```
+
+เก็บเฉพาะ Base OS, Docker stack package versions แบบ minimal, Docker/Compose/Buildx versions, container image tag + digest และ build notes สั้นๆ. ห้ามเก็บ image name, Glance ID, server ID, floating IP, VM IP, hostname, OpenStack context หรือ credentials.

@@ -110,6 +110,16 @@ build/apps/<app>/
 - ห้ามเก็บ password, token, private key, credentials
 - Temp env อยู่ใน `build/tmp/{app}-build.env` (gitignored, ลบหลังจบ)
 
+## Build Manifest Policy
+
+หลัง build สำเร็จให้เก็บประวัติ version แบบ non-secret ที่ `build/apps/{app}/{app}-build-manifest.md` โดยใช้ template กลาง `build/_build-manifest-template.md`
+
+- Manifest คือประวัติ golden image build ล่าสุด + changelog สั้นๆ ไม่ใช่ runtime inventory
+- เก็บเฉพาะ App, status, build date `YYYY-MM-DD`, Base OS เช่น `Ubuntu 26.04`, Docker stack package versions แบบ minimal, runtime tool versions, container image tag + digest, build notes
+- ห้ามเก็บ image name, Glance ID, server ID, floating IP, VM IP, hostname, OpenStack project/user/auth context, password, token, private key, runtime credential
+- ถ้า build ล้มเหลว ไม่ต้องสร้าง manifest ใหม่ ให้บันทึกใน `{app}-errors.md` อย่างเดียว
+- Post-test VM จาก image ไม่แก้ manifest เพราะ manifest เป็นข้อมูล golden-image build เท่านั้น
+
 ---
 
 ## Post-Test Policy
@@ -145,7 +155,7 @@ Post-test คือการตรวจ VM ใหม่ที่สร้าง
 | `websearch` | ค้นหาข้อมูลจาก search engine |
 | `browser_navigate` (Playwright MCP) | เว็บมี Cloudflare, WAF, JS challenge — `webfetch` โดน 403 |
 
-> Playwright MCP ต้องเปิด `--user-agent`, `--viewport-size`, `--ignore-https-errors` ใน `opencode.json` ดู `docs/references/stack-components.md` → `tool: playwright-cloudflare-bypass`
+> Playwright MCP ต้องเปิด `--user-agent`, `--viewport-size`, `--ignore-https-errors` ใน config ของ tool ดู `docs/references/stack-components.md` → `tool: playwright-cloudflare-bypass`
 
 ---
 

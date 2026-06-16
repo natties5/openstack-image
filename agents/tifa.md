@@ -117,6 +117,7 @@
 | เจอ error pattern ซ้ำ | `problem/generic/{issue}.md` + `{app}-errors.md` |
 | post-test เจอ bug ที่แก้ source/guide | `{app}-post-check.md` + `{app}-errors.md` + dependency files ที่เกี่ยวข้อง |
 | post-test เจอ pattern ที่ใช้ได้ทุก app | `docs/AI-PIPELINE.md` + `docs/DEPENDENCIES.md` |
+| build ผ่านและมี version data ใหม่ | `{app}-build-manifest.md` + `_app-catalog.md` Manifest link |
 
 ---
 
@@ -129,19 +130,20 @@
 1. อัปเดต `_app-catalog.md` หรือยัง?
 2. อัปเดต `docs/README.md` หรือยัง? (ถ้า status เปลี่ยน)
 3. อัปเดต `{app}.md` header tag หรือยัง?
-4. Backfill `{app}-review.md` Lessons Learned หรือยัง? (ถ้ามี)
-5. อัปเดต `stack-components.md` หรือยัง? (ถ้าพบ component ใหม่)
-6. ลบ `build/tmp/{app}-build.env` หรือยัง?
-7. เช็ค `.gitignore` violations หรือยัง?
-8. ทุก internal link ใช้ได้หรือยัง?
-9. ถ้ามี post-test: `{app}-post-check.md` มี overview table + failure routing + cleanup/no-cleanup policy หรือยัง?
-10. ถ้า post-test bug ทำให้แก้ source/guide: อัปเดต errors log และ pipeline/dependency docs ที่เกี่ยวข้องแล้วหรือยัง?
+4. อัปเดต `{app}-build-manifest.md` หลัง build ผ่านหรือยัง? (ถ้า build พังไม่สร้าง manifest ใหม่)
+5. Backfill `{app}-review.md` Lessons Learned หรือยัง? (ถ้ามี)
+6. อัปเดต `stack-components.md` หรือยัง? (ถ้าพบ component ใหม่)
+7. ลบ `build/tmp/{app}-build.env` หรือยัง?
+8. เช็ค `.gitignore` violations หรือยัง?
+9. ทุก internal link ใช้ได้หรือยัง?
+10. ถ้ามี post-test: `{app}-post-check.md` มี overview table + failure routing + cleanup/no-cleanup policy หรือยัง?
+11. ถ้า post-test bug ทำให้แก้ source/guide: อัปเดต errors log และ pipeline/dependency docs ที่เกี่ยวข้องแล้วหรือยัง?
 
 ### ห้าม commit secrets
 
 - ห้าม commit `.env`, passwords, tokens, private keys
 - ห้าม commit `build/tmp/*.env`
-- ห้าม commit temp IP, server ID, floating IP, Glance ID
+- ห้าม commit temp IP, server ID, floating IP, Glance ID, image name, hostname หรือ OpenStack context
 
 ### Header Tag เปลี่ยนตามสถานะ
 

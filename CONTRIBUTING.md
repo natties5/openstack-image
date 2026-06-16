@@ -170,9 +170,10 @@ test ! -e /var/log/{app}-bootstrap.log
 # File: build/_app-catalog.md
 # Change: "พร้อม build" → "built standalone"
 
-# 3. Record in inventory
-# File: inventory/images/app-images.env
-# Add: {APP}_IMAGE_NAME="..." GLANCE_ID="..."
+# 3. Record build manifest
+# File: build/apps/{app}/{app}-build-manifest.md
+# Add: build date, Ubuntu version, Docker stack package versions, tool versions, container image tag+digest
+# Do NOT record image name, Glance ID, server ID, IP, hostname, OpenStack context, or credentials
 
 # 4. DELETE temp env
 rm build/tmp/{app}-build.env

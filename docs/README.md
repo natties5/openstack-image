@@ -42,6 +42,7 @@ openstack-image/
 │   └── utils/                  (ว่าง — reusable utilities)
 ├── build/                     ← Build Output & Source Files
 │   ├── _app-catalog.md        (app status + wishlist)
+│   ├── _build-manifest-template.md (template ประวัติ version หลัง build)
 │   ├── _guest-images.md        (guest image pipeline: 9 OS)
 │   ├── _guest-images-errors.md (AI mistakes log)
 │   ├── _verify-template.md    (pre-capture gate checklist template)
@@ -50,6 +51,7 @@ openstack-image/
 │   │   │   ├── wordpress.md
 │   │   │   ├── wordpress-review.md
 │   │   │   ├── wordpress-errors.md
+│   │   │   ├── wordpress-build-manifest.md
 │   │   │   ├── wordpress-post-check.md
 │   │   │   ├── docker-compose.yml
 │   │   │   ├── nginx/
@@ -122,8 +124,10 @@ openstack-image/
 
 ### 3️⃣ **Build Output**
 - **`build/_app-catalog.md`** — App status (สร้างแล้ว/พร้อม build/รอเติม)
+- **`build/_build-manifest-template.md`** — Template สำหรับ `{app}-build-manifest.md` หลัง build สำเร็จ
 - **`build/_guest-images.md`** — Guest image pipeline (OS checklist)
 - **`build/apps/{app}/{app}.md`** — Per-app build guide (self-contained, copy-paste ได้)
+- **`build/apps/{app}/{app}-build-manifest.md`** — Version history ล่าสุดของ golden image build แบบ non-secret
 
 ### 4️⃣ **Automation**
 - **`scripts/templates/`** — Shell script templates (ยังว่าง, สำหรับอนาคต)
@@ -161,9 +165,10 @@ openstack-image/
    → Self-Upgrade: mirror matrix / cloud-init ถ้าเจอ behavior ใหม่
 
 5. หลัง build เสร็จ
-   → Tifa อัปเดต build/_app-catalog.md (status)
-   → อัปเดต build/apps/{app}/{app}.md (header tag: [built: ...])
-   → Backfill Lessons Learned → {app}-review.md
+    → Tifa อัปเดต build/_app-catalog.md (status)
+    → อัปเดต build/apps/{app}/{app}.md (header tag: [built: ...])
+    → Cloud/Tifa อัปเดต build/apps/{app}/{app}-build-manifest.md (version history, no runtime/OpenStack context)
+    → Backfill Lessons Learned → {app}-review.md
    → อัปเดต stack-components.md ถ้าพบ component ใหม่
    → ลบ temp env file (build/tmp/{app}-build.env)
    → Self-Upgrade: DEPENDENCIES.md ถ้าพบ dependency ใหม่

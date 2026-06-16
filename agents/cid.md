@@ -186,6 +186,12 @@ EOF
 - [ ] <Docker stack: no containers running, docker images preserved>
 - [ ] <Non-Docker stack: process stopped, config files valid>
 - [ ] <app-specific> (เช่น ตอบ 200 ที่ /, DB connect สำเร็จ)
+
+## Record Build Manifest
+- หลัง pre-capture gate ผ่าน ให้ Cloud สร้าง/อัปเดต `build/apps/{app}/{app}-build-manifest.md`
+- ใช้ `build/_build-manifest-template.md`
+- เก็บเฉพาะ Base OS, Docker stack package/tool versions, container image tag + digest, build notes
+- ห้ามเก็บ image name, Glance ID, server ID, IP, hostname, OpenStack context หรือ credentials
 ```
 
 ---
@@ -236,7 +242,7 @@ EOF
 | `context7_*` (Context7 MCP) | ดึง API docs + version migration guide |
 | `browser_navigate` (Playwright) | ดู demo/doc ของ app ที่มี WAF |
 
-**Config เห็นที่ `opencode.json`** — เพิ่มทีเดียวใช้ได้ทุก agent
+**Config** — ตั้งค่าใน config ของ tool เพิ่มทีเดียวใช้ได้ทุก agent
 
 ---
 

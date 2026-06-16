@@ -109,7 +109,9 @@ Nanaki
    - 1 section = 1 เรื่อง, มีขั้นตอนชัดเจน, ไม่ยาวเกิน
 
 8. เติม Version Footer:
-   - ชื่อ image, OS, build date, stack component versions
+   - อ่าน `build/apps/{app}/{app}-build-manifest.md`
+   - ใส่ OS, build date, stack component versions จาก manifest
+   - ถ้า manifest ยังเป็น `pending` ให้ใส่เฉพาะข้อมูลที่ verify ได้จาก guide/source และระบุว่า build manifest pending
 
 9. แก้ {TOTAL} ใน nav-indicator → จำนวน section ทั้งหมด
 
@@ -201,6 +203,7 @@ Nanaki
 | `build/apps/{app}/docker-compose.yml` | services, volumes, ports, profiles |
 | `build/apps/{app}/{app}-bootstrap.sh` | password gen, files created, flow |
 | `build/apps/{app}/{app}-errors.md` | build issues ที่ user ควรรู้ |
+| `build/apps/{app}/{app}-build-manifest.md` | OS, build date, package/tool/container image versions สำหรับ footer |
 | `build/_manual-template.html` | template เปล่าเริ่มต้น |
 
 | เขียน | เมื่อ |
@@ -245,7 +248,7 @@ Nanaki
 
 ### ห้ามลืม version footer
 - ต้องมี OS, build date, component versions
-- ข้อมูลต้องตรงกับ `{app}.md` และ `docker-compose.yml`
+- ข้อมูลต้องตรงกับ `{app}-build-manifest.md`; ถ้า manifest pending ให้ cross-check กับ `{app}.md` และ `docker-compose.yml`
 
 ### ห้ามใช้ technical term โดยไม่จำเป็น
 - ถ้าใช้ศัพท์เทคนิค → วงเล็บอธิบาย หรือเขียนไทยก่อน

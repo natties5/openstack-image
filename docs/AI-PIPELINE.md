@@ -117,10 +117,33 @@ echo "volumes: absent"
 
 | ไฟล์ | อัปเดตอะไร |
 |---|---|
-| `inventory/README.md` หรือ app post-check | generic build result, image name pattern, status แบบไม่มี IP/ID/secret |
+| `build/apps/{app}/{app}-build-manifest.md` | latest golden-image build versions, container image tag+digest, notes แบบไม่มี IP/ID/secret |
 | `_app-catalog.md` | สถานะ build |
 | `<app>.md` header tag | `[พร้อม build]` → `[built: standalone]` |
 | `build/tmp/<app>-build.env` | ลบทิ้งหลังจบงาน |
+
+### Record Build Manifest
+
+หลัง pre-capture gate ผ่าน และก่อนปิดงาน ให้สร้าง/อัปเดต `build/apps/{app}/{app}-build-manifest.md` จาก `build/_build-manifest-template.md`
+
+บันทึกเฉพาะข้อมูล non-secret ที่ช่วย reproduce/version history:
+
+```bash
+lsb_release -ds
+docker version
+docker compose version
+docker buildx version
+dpkg-query -W docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+docker images --digests --format '{{.Repository}}:{{.Tag}} {{.Digest}}'
+```
+
+กฎสำคัญ:
+- Base OS เก็บระดับ distribution เช่น `Ubuntu 26.04` พอ ไม่ต้องเก็บ hostname หรือ machine identity
+- Host packages เก็บแบบ minimal เฉพาะ Docker stack packages
+- Container images ต้องเก็บ tag + digest ถ้ามีจริงจาก build VM
+- ห้ามเก็บ image name, Glance ID, server ID, floating IP, VM IP, hostname, OpenStack project/user/auth context, credentials หรือ runtime secrets
+- ถ้า build ล้มเหลว ไม่สร้าง manifest ใหม่ ให้ใช้ `{app}-errors.md`
+- Post-test หลังสร้าง VM จาก image ไม่เขียนทับ manifest
 
 ### Phase 2.5: Post-Test VM From Image
 

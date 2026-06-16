@@ -56,6 +56,7 @@
 | `build/apps/{app}/{app}.md` | Cloud + Tifa | Per-app build guide |
 | `build/apps/{app}/{app}-review.md` | Aerith + Cid | Feature selection |
 | `build/apps/{app}/{app}-errors.md` | Cloud + Tifa | Error learning log |
+| `build/apps/{app}/{app}-build-manifest.md` | Cloud + Nanaki + Tifa | Golden image build version history, non-secret only |
 | `build/apps/{app}/{app}-post-check.md` | Cloud + Tifa | Post-test checklist, cleanup mode, failure routing |
 | `build/apps/{app}/manual.html` | Nanaki + end-user | User manual (HTML) |
 | `scripts/templates/*.sh.tmpl` | *(planned — not yet created)* User + `Makefile` | Build automation |
@@ -94,21 +95,21 @@
 ```text
 1. Update build/apps/{app}/{app}.md (header tag: [พร้อม build] → [built: standalone])
    ↓
-2. Update build/_app-catalog.md (status: "พร้อม build" → "built แล้ว")
+2. Create/Update build/apps/{app}/{app}-build-manifest.md (latest build versions, NO IP/ID/secret)
    ↓
-3. Update docs/README.md (if status table needs update)
+3. Update build/_app-catalog.md (status: "พร้อม build" → "built แล้ว", Manifest link)
    ↓
-4. Create/Update build/apps/{app}/{app}-post-check.md (if new checks found)
+4. Update docs/README.md (if status table needs update)
    ↓
-5. Update build/apps/{app}/{app}-errors.md (if errors occurred during build)
+5. Create/Update build/apps/{app}/{app}-post-check.md (if new checks found)
    ↓
-6. Delete temp env file: build/tmp/{app}-build.env
+6. Update build/apps/{app}/{app}-errors.md (if errors occurred during build)
    ↓
-7. Update inventory/images/*.env (generic build metadata, NO IP/ID/secret)
+7. Delete temp env file: build/tmp/{app}-build.env
 ```
 
 **Affected files:** 5-7 files  
-**Dependency chain:** Step 1 → 2 → 3, 4, 5 (parallel) → 7
+**Dependency chain:** Step 1 → 2 → 3 → 4, 5, 6 (parallel) → 7
 
 ---
 
