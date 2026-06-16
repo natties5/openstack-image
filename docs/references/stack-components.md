@@ -1,6 +1,6 @@
 # Stack Components Catalog
 
-> Component สำเร็จรูป — Engineer เลือกผสมตาม research  
+> Component สำเร็จรูป — Cid เลือกผสมตาม research  
 > ทุก entry มี: snippet + When to use + When NOT + Real-world reference
 
 ---
@@ -540,8 +540,8 @@ systemctl enable <app>
 **Agent tools ที่ต้องเปิด:** `playwright_*`
 ```json
 "agent": {
-  "image-sleuth": { "tools": { "playwright_*": true } },
-  "image-engineer": { "tools": { "playwright_*": true } }
+  "aerith": { "tools": { "playwright_*": true } },
+  "cid": { "tools": { "playwright_*": true } }
 }
 ```
 
@@ -568,15 +568,15 @@ systemctl enable <app>
 
 **Prerequisite:** `GITHUB_PERSONAL_ACCESS_TOKEN` env var (ฟรี สร้างที่ GitHub → Settings → Developer settings)
 
-**Agent:** `image-sleuth` (search issues/PRs), `image-engineer` (check releases/tags)
+**Agent:** `aerith` (search issues/PRs), `cid` (check releases/tags)
 
-**Real-world:** Sleuth ค้น community issues ก่อนเขียน review, Engineer เช็ค release tags ก่อน pin version
+**Real-world:** Aerith ค้น community issues ก่อนเขียน review, Cid เช็ค release tags ก่อน pin version
 
 ---
 
 ### tool: ssh-mcp
 
-**When to use:** Maker ต้องการ SSH เข้า VM รัน build pipeline อัตโนมัติ — แทนการ copy-paste คำสั่ง
+**When to use:** Cloud ต้องการ SSH เข้า VM รัน build pipeline อัตโนมัติ — แทนการ copy-paste คำสั่ง
 
 **When NOT:** build แบบ manual (user รันเองตาม guide), ไม่มี VM ให้ SSH
 
@@ -601,9 +601,9 @@ $env:BUILD_VM_USER="ubuntu"
 $env:BUILD_VM_PASS="temp123"
 ```
 
-**Agent:** `image-maker`
+**Agent:** `cloud`
 
-**Real-world:** Maker SSH build Odoo/WordPress/Nextcloud image บน VM แบบ end-to-end
+**Real-world:** Cloud SSH build Odoo/WordPress/Nextcloud image บน VM แบบ end-to-end
 
 ---
 
@@ -620,5 +620,5 @@ $env:BUILD_VM_PASS="temp123"
 
 ---
 
-**Version:** 2026-06-14
-**Referenced by:** `agents/image-engineer.md`
+**Version:** 2026-06-16
+**Referenced by:** `agents/cid.md`

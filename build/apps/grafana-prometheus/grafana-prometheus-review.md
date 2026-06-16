@@ -248,7 +248,7 @@ Reset script ต้องเปลี่ยน password ผ่าน Grafana CLI
 
 ---
 
-## ส่งต่อให้วิศวกร
+## ส่งต่อให้ Cid
 
 ออกแบบ `build/apps/grafana-prometheus/grafana-prometheus.md` และ source files โดยยึด stack นี้:
 

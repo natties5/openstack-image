@@ -1,6 +1,6 @@
 # AI Pipeline — App Image Build
 
-> **Version:** 2026-06-06
+> **Version:** 2026-06-15
 > **ใช้กับ:** ทุก app image build (WordPress, Nextcloud, Odoo, n8n, etc.)
 > **Pattern:** Pre-flight → SSH → Build → Verify → Post-build
 
@@ -122,6 +122,49 @@ echo "volumes: absent"
 | `<app>.md` header tag | `[พร้อม build]` → `[built: standalone]` |
 | `build/tmp/<app>-build.env` | ลบทิ้งหลังจบงาน |
 
+### Phase 2.5: Post-Test VM From Image
+
+Trigger: user/admin สร้าง VM ใหม่จาก image แล้วให้ AI ตรวจว่าภาพใช้งานได้จริง
+
+**ก่อน SSH ต้องถาม cleanup mode:**
+
+| Mode | หลัง post-test ทำอะไร | ใช้เมื่อ |
+|---|---|---|
+| `no-cleanup` | ทิ้ง containers, volumes, `.env`, README, marker, logs, test targets, password state ไว้ | user/admin จะเข้าไป inspect ต่อ |
+| `cleanup-test-targets` | ลบเฉพาะ target ทดสอบที่ checklist เพิ่ม แล้ว reload app | VM จะส่งต่อให้ลูกค้า/ผู้ใช้หลัง test |
+
+**Reboot test policy:**
+- Reboot test เป็น optional final gate เท่านั้น
+- ต้องถาม user/admin ก่อน reboot ทุกครั้ง
+- ห้าม reboot ระหว่าง checklist กลาง เพราะทำให้การ inspect สะดุด
+- ถ้า user/admin อนุมัติ ให้ verify หลัง reboot ว่า service/container/health/password state/targets ยังอยู่
+- ถ้า user/admin ไม่อนุมัติ ให้สรุปว่าไม่ได้ทำ reboot persistence test
+
+**Post-check file ทุก app image ต้องมี:**
+
+| Section | เนื้อหา |
+|---|---|
+| Overview checklist table | step, pipeline phase, command หลัก, expected, failure action |
+| Pipeline scope | ทดสอบ pipeline ไหน และไม่ครอบคลุมอะไร |
+| Detailed checklist | commands รายข้อที่ run ได้จริง |
+| Failure routing | ถ้าพังต้องแก้ source/guide/post-check/pipeline docs จุดไหน |
+| Cleanup/no-cleanup policy | ระบุ behavior หลัง test ให้ชัด |
+| Expected exceptions | optional component หรือ repeated no-cleanup behavior ที่ไม่ควรนับ fail |
+| Optional final reboot gate | วิธีถามก่อน reboot และ verify persistence หลัง reboot |
+
+**Bug classification:**
+
+| Type | ตัวอย่าง | Default action |
+|---|---|---|
+| App source bug | container restart, permission denied, bad config | แก้ source files + `{app}.md`/deploy guide ทันที |
+| Build guide bug | command ใน guide ใช้ไม่ได้ | แก้ `{app}.md` และบันทึก `{app}-errors.md` ถ้า AI รันพังจริง |
+| Post-check bug | checklist นับ optional component เป็น fail | แก้ `{app}-post-check.md` |
+| Generic pipeline bug | ทุก app ต้องถาม cleanup mode, ต้อง redact password | แก้ `docs/AI-PIPELINE.md` + `docs/DEPENDENCIES.md` |
+| Reboot persistence bug | reboot แล้ว password/targets/state หาย | แก้ source/bootstrap idempotency และ post-check |
+| Expected exception | optional cAdvisor down ถ้า profile ไม่เปิด | ระบุใน post-check ไม่ต้องแก้ source |
+
+หลักการ: post-test error ที่เป็น bug จริงต้อง feedback กลับไปแก้ build/source/docs ในรอบเดียวกัน ไม่ใช่รายงานอย่างเดียว.
+
 ### Phase 3: เจอปัญหา
 
 **บันทึกตามขอบเขต:**
@@ -186,14 +229,14 @@ echo "volumes: absent"
 | Minimum flavor | 1 vCPU / 2GB RAM / 15GB disk |
 | Special notes | Docker CE official repo, Compose plugin, Buildx, Portainer HTTPS `9443`, Nginx Proxy Manager `80/81/443`, credentials file on first boot |
 
-### Grafana+Prometheus — ✅ พร้อม build
+### Grafana+Prometheus — ✅ built: standalone
 
 | รายการ | ค่า |
 |---|---|
 | Build guide | `build/apps/grafana-prometheus/grafana-prometheus.md` |
 | Deploy guide | `build/apps/grafana-prometheus/grafana-prometheus-deploy.md` |
 | Post-check | `build/apps/grafana-prometheus/grafana-prometheus-post-check.md` |
-| Header tag | `[พร้อม build]` |
+| Header tag | `[built: standalone]` |
 | Base OS | Ubuntu 26.04 |
 | Docker images | `grafana/grafana:latest`, `prom/prometheus:latest`, `prom/alertmanager:latest`, `prom/node-exporter:latest`, `prom/blackbox-exporter:latest`, `nginx:stable-alpine`, optional `gcr.io/cadvisor/cadvisor:latest` |
 | Minimum flavor | 2 vCPU / 2GB RAM / 15GB disk |

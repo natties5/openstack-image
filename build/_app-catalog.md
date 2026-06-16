@@ -3,43 +3,154 @@
 > Ubuntu 26.04-based ready-to-use application images for OpenStack
 > **Build Pattern:** Docker Compose app stack + systemd bootstrap + pre-pull images -> QCOW2 -> Glance
 
-**Last upstream check:** 2026-06-14
+**Last upstream check:** 2026-06-15
 
 ---
 
-## App Status
+## Column Rules
 
-> `Image Target` = version/stack ที่ guide หรือ source ใน repo ตั้งใจ build จริง
-> `Latest Upstream` = version ล่าสุดที่ตรวจจาก upstream วันนี้ ยังไม่ได้แปลว่า image build แล้ว
+Catalog นี้ใช้ข้อมูลที่ตรวจได้จริงเท่านั้น ไม่ใช้คะแนนความนิยม/ความง่ายแบบเดาเอง
 
-| App | Folder | Image Target | Latest Upstream | Tech Stack | Repo Status | Action |
-|---|---|---|---|---|---|---|
-| **WordPress** | `build/apps/wordpress/` | 6.7-era guide | 6.9.4 security release | PHP + MariaDB + Nginx (PHP-FPM) | ✅ built: standalone | Rebuild target latest หลัง review pins |
-| **Nextcloud** | `build/apps/nextcloud/` | built `production-korry-gate2`; guide มี rebuild baseline | 34.0.0 | PHP + PostgreSQL + Redis + Nginx | ⚠️ built เดิม แต่รอ source sync/rebuild | ปรับ source ให้ตรง baseline แล้ว rebuild |
-| **Odoo** | `build/apps/odoo/` | 18 | 19 stable/recommended | Python + PostgreSQL + Nginx | ✅ พร้อม build | Optional upgrade guide เป็น Odoo 19 |
-| **Docker Platform** | `build/apps/docker-platform/` | Docker CE + Portainer + NPM | Docker Engine 29.5.3 | Docker CE + Portainer + Nginx Proxy Manager | ✅ พร้อม build | Verify image pins/current tags |
-| **Grafana+Prometheus** | `build/apps/grafana-prometheus/` | guide/source เดิม | Grafana 13.0.2 + Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | ✅ พร้อม build | Verify image pins/current tags |
-| **n8n** | `build/apps/n8n/` | skeleton guide | stable 2.25.7 / beta 2.26.3 | Node.js + PostgreSQL + Nginx | ❌ รอเติม source | ทำ source files ให้ครบก่อน build |
+| Column | ความหมาย |
+|---|---|
+| `Repo Status` | สถานะ source/guide ใน repo ตอนนี้ |
+| `Image Target` | version/stack ที่ guide หรือ source ใน repo ตั้งใจ build จริง |
+| `Upstream Signal` | version ล่าสุดหรือ signal ล่าสุดที่ตรวจจาก upstream วันนี้ ยังไม่ได้แปลว่า image build แล้ว |
+| `Minimum Size` | baseline สำหรับ VM เล็กสุดที่ควรเริ่มทดสอบ ไม่ใช่ sizing สำหรับ production traffic |
+| `Next Action` | สิ่งถัดไปที่ต้องทำเพื่อให้ build/rebuild ได้จริง |
 
 ---
 
-## Candidate Images — ควรเพิ่มต่อ
+## Current Repo Images
 
-> เกณฑ์เลือก: ฟรีพอใช้งาน, self-host ได้, เหมาะเป็น image สำเร็จรูป, resource ไม่สูงเกิน, bootstrap สร้าง secret ต่อ VM ได้ชัดเจน
+| App | Category | Repo Status | Repo Folder | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|---|
+| **WordPress** | CMS / Blog | built: standalone | `build/apps/wordpress/` | `wordpress:php8.3-fpm` + MariaDB + Nginx | WordPress 7.0 latest; 6.9.4 security branch | PHP-FPM + MariaDB + Nginx | 1 vCPU / 1 GB / 10 GB | Decide target line: latest 7.0 vs 6.9 security branch, then rebuild if needed |
+| **WooCommerce** | E-Commerce | พร้อม build | `build/apps/woocommerce/` | WordPress + WooCommerce bootstrap | WooCommerce 10.8.1 | PHP-FPM + MariaDB + Nginx + WP-CLI | 2 vCPU / 2 GB / 15 GB | Build ecommerce image แยกจาก WordPress |
+| **Nextcloud** | Collaboration / File Sharing | built เดิม แต่ source target เก่า | `build/apps/nextcloud/` | source ใช้ `nextcloud:30.0-apache` | Nextcloud 34.0.0 | Nextcloud Apache + PostgreSQL + Redis + Nginx | 2 vCPU / 2 GB / 20 GB | Sync source เป็น target ใหม่ก่อน rebuild |
+| **Odoo** | Business / ERP / CRM | พร้อม build | `build/apps/odoo/` | `odoo:18.0` + PostgreSQL + Nginx | Odoo 19 stable/recommended ต้อง verify จาก official docs ก่อนเปลี่ยน target | Python/Odoo + PostgreSQL + Nginx | 2 vCPU / 2-4 GB / 20 GB | ใช้ Odoo 18 guide ต่อ หรือทำ review ก่อน upgrade เป็น 19 |
+| **Docker Platform** | DevOps / Platform | พร้อม build | `build/apps/docker-platform/` | Docker CE + Portainer + Nginx Proxy Manager | Portainer 2.39.3 LTS; Nginx Proxy Manager 2.15.1 | Docker CE + Portainer + NPM | 1 vCPU / 2 GB / 15 GB | Verify image tags/pins แล้ว build |
+| **Grafana+Prometheus** | Monitoring / Analytics | built: standalone | `build/apps/grafana-prometheus/` | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | Capture/Glance ตาม admin workflow |
+| **n8n** | Automation / AI no-GPU | รอเติม source | `build/apps/n8n/` | skeleton guide only | n8n 2.25.7 | Node.js + PostgreSQL + Nginx | 1-2 vCPU / 2 GB / 10 GB | สร้าง source files ให้ครบก่อน build |
 
-| Priority | App | Category | Latest / Current Signal | Why | Suggested Size | Build Fit |
-|---|---|---|---|---|---|---|
-| 🔥🔥🔥 | **Vaultwarden** | Password Manager | 1.36.0 | คุณค่าสูงมาก, เบา, ใช้ official Bitwarden clients ได้, replacement 1Password/Bitwarden paid | 1 vCPU / 512 MB-1 GB / 5 GB | ดีมาก |
-| 🔥🔥🔥 | **AnythingLLM** | AI / RAG no-GPU | v1.13.x docs signal | Document Q&A/RAG ใช้ง่าย, MIT, ใช้ external API หรือ Ollama CPU ได้ | 2 vCPU / 2-4 GB / 10 GB | ดีมาก |
-| 🔥🔥 | **Umami** | Analytics | 3.1.0 | Google Analytics alternative, MIT, เบากว่า Plausible, ใช้ PostgreSQL | 1-2 vCPU / 1-2 GB / 10 GB | ดี |
-| 🔥🔥 | **Chatwoot CE** | Helpdesk / Live Chat | 4.14.2 CE | replacement Intercom/Zendesk, SME ใช้จริง, CE MIT | 2-4 vCPU / 4 GB / 20 GB | ดีแต่ stack หนัก |
-| 🔥🔥 | **NocoDB** | No-code DB / Airtable | ต้อง verify release | ใช้ง่ายกับ non-tech team, spreadsheet UI บน DB | 1-2 vCPU / 1-2 GB / 10 GB | ดี |
-| 🔥🔥 | **Coolify** | Self-hosted PaaS | 4.1.2 | dev/agency deploy app/database/service ผ่าน UI, 280+ one-click services | 2 vCPU / 2-4 GB / 20 GB | ดีแต่ต้องระวัง Docker host security |
-| 🔥 | **Flowise** | AI Agent Builder | ต้อง verify release | visual AI/RAG/agent builder เบา, no GPU ถ้าใช้ external API | 1-2 vCPU / 1-2 GB / 10 GB | ดีสำหรับ prototype/internal |
-| 🔥 | **Dify CE** | AI App Platform | 1.14.2 | production AI workflow/RAG platform ครบกว่า Flowise | 2+ vCPU / 4-8 GB / 20 GB | ดีแต่หลาย services |
-| 🔥 | **Plane CE** | Project Management | 1.3.1 | Jira/Linear alternative, project + wiki, AGPL CE | 2 vCPU / 4 GB / 20 GB | ดีแต่ stack หนัก |
+---
 
-### AI / RAG / Automation — No GPU Policy
+## Recommended Next Builds
+
+> เรียงจากความพร้อมของ repo + value ของ image สำเร็จรูป + stack ที่ควรคุมได้ ไม่ใช่คะแนน popularity
+
+| Order | App | Category | Why Now | Required Work |
+|---|---|---|---|---|
+| 1 | **n8n** | Automation / AI no-GPU | มี guide skeleton แล้วและ automation/AI workflow ใช้ demo ได้ดี | เติม `docker-compose.yml`, nginx config, bootstrap, service, README, MOTD |
+| 2 | **Vaultwarden** | Security / Password Manager | stack เบา, value ชัด, bootstrap secret ต่อ VM ทำได้ตรงไปตรงมา | ทำ community review -> build guide/source |
+| 3 | **AnythingLLM** | AI / RAG no-GPU | เหมาะเป็น AI image แบบไม่ต้องมี GPU ถ้าใช้ external LLM API | ทำ community review -> build guide/source |
+| 4 | **Nextcloud rebuild** | Collaboration / File Sharing | มี image เดิม แต่ source target เก่าและ upstream ขยับไกล | ตัดสิน target แล้ว sync source/rebuild |
+| 5 | **WooCommerce build** | E-Commerce | source พร้อมและเป็น variant ที่ชัดจาก WordPress | build + verify standalone |
+| 6 | **Umami** | Monitoring / Analytics | analytics image เบา ใช้ PostgreSQL และเหมาะกับ self-host | ทำ community review -> build guide/source |
+| 7 | **Chatwoot CE** | Support / Helpdesk | business value สูง แต่ stack หนักกว่า apps เบา | ทำ review เรื่อง sizing, email, storage, bootstrap |
+| 8 | **NocoDB** | No-code DB | Airtable replacement ใช้กับทีม non-tech ได้ | ทำ review เรื่อง CE/free features และ database mode |
+
+---
+
+## Catalog By Category
+
+### CMS / E-Commerce
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **WordPress** | CMS/blog/website | built: standalone | `wordpress:php8.3-fpm` | WordPress 7.0 latest; 6.9.4 security branch | PHP-FPM + MariaDB + Nginx | 1 vCPU / 1 GB / 10 GB | Decide target line then rebuild if needed |
+| **WooCommerce** | Online store image | พร้อม build | WordPress + WooCommerce bootstrap | WooCommerce 10.8.1 | PHP-FPM + MariaDB + Nginx + WP-CLI | 2 vCPU / 2 GB / 15 GB | Build standalone ecommerce image |
+| **Ghost** | Blog/newsletter | wishlist | ยังไม่มี source | ต้อง verify | Node.js + SQLite/MySQL | 1 vCPU / 1 GB / 10 GB | Research later |
+| **PrestaShop** | Standalone online store | wishlist | ยังไม่มี source | ต้อง verify | PHP + MySQL/MariaDB + Nginx | 2 vCPU / 2 GB / 15 GB | Research later |
+
+### Collaboration / File Sharing
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Nextcloud** | File sharing + collaboration | built เดิม แต่ source target เก่า | `nextcloud:30.0-apache` in source | Nextcloud 34.0.0 | Nextcloud Apache + PostgreSQL + Redis + Nginx | 2 vCPU / 2 GB / 20 GB | Sync source target before rebuild |
+| **Seafile** | File sync/share ที่เบากว่า Nextcloud | wishlist | ยังไม่มี source | ต้อง verify | Python + MySQL + Memcached | 1 vCPU / 2 GB / 20 GB | Research later |
+
+### Automation / AI No-GPU
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **n8n** | Workflow automation + AI nodes | รอเติม source | skeleton guide only | n8n 2.25.7 | Node.js + PostgreSQL + Nginx | 1-2 vCPU / 2 GB / 10 GB | เติม source files |
+| **AnythingLLM** | RAG / document Q&A / workspaces | candidate | ยังไม่มี source | AnythingLLM 1.14.0 | Node.js + SQLite/LanceDB; optional external LLM/Ollama | 2 vCPU / 2-4 GB / 10 GB | ทำ review + source |
+| **Flowise** | Visual AI agent/RAG/chatflow builder | candidate | ยังไม่มี source | Flowise 3.1.2 | Node.js; optional DB/Redis by deployment | 1-2 vCPU / 1-2 GB / 10 GB | ทำหลัง AnythingLLM |
+| **Dify CE** | Production AI app/RAG/workflow platform | candidate later | ยังไม่มี source | Dify 1.14.2 | Python + Node.js + PostgreSQL + Redis + Vector DB | 2+ vCPU / 4-8 GB / 20 GB | Review stack complexity ก่อนทำ |
+| **Open WebUI + Ollama** | Local LLM web UI | wishlist | ยังไม่มี source | ต้อง verify | Open WebUI + Ollama | 4 vCPU / 8-16 GB / 30 GB for useful local model | Research license/performance ก่อน |
+| **LiteLLM Proxy** | AI gateway/proxy | wishlist | ยังไม่มี source | ต้อง verify | Python + PostgreSQL/Redis optional | 1-2 vCPU / 1-2 GB / 10 GB | Research later |
+| **Onyx** | Enterprise search/RAG | research later | ยังไม่มี source | ต้อง verify | Multi-service stack | 4+ vCPU / 8+ GB / 30 GB | Research later |
+
+### Security / Password Manager
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Vaultwarden** | Bitwarden-compatible password manager | candidate | ยังไม่มี source | Vaultwarden 1.36.0 | Rust + SQLite/PostgreSQL | 1 vCPU / 512 MB-1 GB / 5 GB | ทำ review + source |
+
+### Business / ERP / CRM
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Odoo** | ERP/CRM/Inventory/Website | พร้อม build | `odoo:18.0` | Odoo 19 stable/recommended ต้อง verify official docs | Python/Odoo + PostgreSQL + Nginx | 2 vCPU / 2-4 GB / 20 GB | Optional Odoo 19 research/upgrade |
+| **ERPNext** | ERPNext/Frappe suite | wishlist | ยังไม่มี source | ต้อง verify | Python + MariaDB + Redis | 2 vCPU / 4 GB / 20 GB | Research later |
+| **Invoice Ninja** | Invoicing + clients + payments | wishlist | ยังไม่มี source | ต้อง verify | PHP + MySQL + Nginx | 1 vCPU / 1 GB / 10 GB | Research later |
+| **Twenty** | CRM | wishlist | ยังไม่มี source | ต้อง verify | Node.js + PostgreSQL | 1-2 vCPU / 2 GB / 10 GB | Research later |
+
+### DevOps / Platform
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Docker Platform** | Docker CE + management UI + proxy UI | พร้อม build | Docker CE + Portainer + NPM | Portainer 2.39.3 LTS; NPM 2.15.1 | Docker CE + Portainer + Nginx Proxy Manager | 1 vCPU / 2 GB / 15 GB | Verify pins/current tags |
+| **Coolify** | Self-hosted PaaS | candidate | ยังไม่มี source | Coolify 4.1.2 | Docker + Laravel + PostgreSQL | 2 vCPU / 2-4 GB / 20 GB | Review Docker host security ก่อนทำ |
+| **Gitea** | Lightweight Git server | wishlist | ยังไม่มี source | ต้อง verify | Go + SQLite/PostgreSQL | 1 vCPU / 1 GB / 10 GB | ทำก่อน GitLab ถ้าต้องการ Git image |
+| **GitLab CE** | Git + CI/CD + registry | low priority / heavy | ยังไม่มี source | ต้อง verify | Ruby + PostgreSQL + Redis | 4 vCPU / 4 GB+ / 30 GB | ทำเฉพาะเมื่อต้องการ full CI/CD image |
+
+### Monitoring / Analytics
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Grafana+Prometheus** | VM / website / service monitoring | built: standalone | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | Capture/Glance ตาม admin workflow |
+| **Umami** | Privacy-friendly web analytics | candidate | ยังไม่มี source | Umami 3.1.0 | Node.js + PostgreSQL | 1 vCPU / 1-2 GB / 10 GB | ทำ review + source |
+| **Uptime Kuma** | Uptime monitoring + alerts | wishlist | ยังไม่มี source | ต้อง verify | Node.js + SQLite | 1 vCPU / 512 MB / 5 GB | Research later |
+| **Plausible** | Web analytics | wishlist | ยังไม่มี source | ต้อง verify | Elixir + PostgreSQL + ClickHouse | 2 vCPU / 2-4 GB / 20 GB | Research later |
+
+### Support / Helpdesk
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Chatwoot CE** | Live chat + helpdesk | candidate | ยังไม่มี source | Chatwoot 4.14.2 | Rails + PostgreSQL + Redis | 2-4 vCPU / 4 GB / 20 GB | Review email/storage/bootstrap requirements |
+
+### No-Code / Project Management
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **NocoDB** | Airtable-like UI on database | candidate | ยังไม่มี source | NocoDB 2026.06.0 | Node.js + PostgreSQL/MySQL/SQLite | 1-2 vCPU / 1-2 GB / 10 GB | Review CE/free feature split |
+| **Plane CE** | Project management + docs/wiki | candidate later | ยังไม่มี source | Plane 1.3.1 | Python + Node.js + PostgreSQL + Redis | 2 vCPU / 4 GB / 20 GB | Review official compose/bootstrap |
+
+### Communication / Community
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Mattermost** | Team chat / Slack alternative | wishlist | ยังไม่มี source | ต้อง verify | Go + PostgreSQL | 1-2 vCPU / 2 GB / 15 GB | Research later |
+| **Discourse** | Forum/community | wishlist | ยังไม่มี source | ต้อง verify | Ruby + PostgreSQL + Redis | 2 vCPU / 2 GB / 15 GB | Research later |
+
+### Database / Base Stack
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **PostgreSQL** | Standalone RDBMS image | low priority | ยังไม่มี source | ต้อง verify | PostgreSQL | 1 vCPU / 1 GB / 10 GB | ทำเมื่อมี use case ชัดกว่า app image |
+| **LAMP Stack** | Apache + MySQL + PHP base stack | low priority | ยังไม่มี source | ต้อง verify | Apache + MySQL/MariaDB + PHP | 1 vCPU / 1 GB / 10 GB | Low value เพราะ dev ตั้งเองได้ง่าย |
+
+### Education
+
+| App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
+|---|---|---|---|---|---|---|---|
+| **Moodle** | LMS สำหรับโรงเรียน/มหาวิทยาลัย | wishlist | ยังไม่มี source | ต้อง verify | PHP + PostgreSQL/MySQL | 2 vCPU / 2 GB / 15 GB | Research later |
+
+---
+
+## AI / RAG No-GPU Notes
 
 | App | Recommendation | No-GPU Reality | License Notes |
 |---|---|---|---|
@@ -49,99 +160,6 @@
 | **Open WebUI + Ollama** | Wishlist | CPU-only ได้กับ 1B-4B model, 7B ต้อง 8-16 GB RAM และช้า | custom/non-OSI license ต้อง review |
 | **LiteLLM Proxy** | Wishlist/devops | ไม่ใช้ GPU เพราะเป็น AI gateway/proxy | OSS free; enterprise features แยก |
 | **Onyx** | Research later | ใช้ external/self-host LLM ได้ แต่ stack/operations หนักกว่า AnythingLLM | CE free; verify license before build |
-
----
-
-## Planned / Wishlist
-
-> Apps ที่สนใจทำในอนาคต — เรียงตาม value สำหรับ OpenStack app image ไม่ใช่แค่ความนิยม upstream
-
-### Category Priority
-
-| # | หมวด | Apps | เพราะ |
-|---|---|---|---|
-| 1 | **Automation / AI no-GPU** | n8n, AnythingLLM, Flowise, Dify | demand ใหม่สูง, demo value ดี, ไม่ต้องมี GPU ถ้าใช้ API provider |
-| 2 | **SME SaaS Replacement** | Vaultwarden, Chatwoot, NocoDB, Plane, Cal.com | ลด SaaS per-seat cost ชัดเจน |
-| 3 | **CMS / Blog / E-Commerce** | WordPress, WooCommerce, Ghost, PrestaShop | WordPress ยัง demand สูงสุด; WooCommerce เป็น variant ของ WordPress |
-| 4 | **File Sharing / Collab** | Nextcloud, Seafile | องค์กรต้องการ data sovereignty |
-| 5 | **ERP / CRM / Business** | Odoo, ERPNext, Invoice Ninja, Twenty | SME ไทยใช้จริง แต่บาง stack หนัก |
-| 6 | **Dev / DevOps** | Docker Platform, Coolify, Gitea, GitLab CE | Coolify/Gitea คุ้มกว่า GitLab สำหรับ image เบา |
-| 7 | **Monitoring / Analytics** | Grafana+Prometheus, Uptime Kuma, Umami, Plausible | monitoring + web analytics ใช้ได้ทุกลูกค้า |
-| 8 | **Communication / Community** | Mattermost, Discourse | ใช้เฉพาะบางองค์กร/ชุมชน |
-| 9 | **Database / Base Stack** | PostgreSQL, LAMP | Dev ตั้งเองได้ จึง priority ต่ำกว่า app สำเร็จรูป |
-| 10 | **Education** | Moodle | demand เฉพาะโรงเรียน/มหาวิทยาลัย |
-
----
-
-## Full Catalog — Ubuntu 26.04 Application Images
-
-| Icon | App | Category | Description | Tech Stack | 🌏 | 🇹🇭 | 😊 | 🛠 | vCPU | RAM | Disk | Docker | Status |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| <img src="https://s.w.org/style/images/about/WordPress-logotype-alternative.png" width="28"> | **WordPress** 6.9.x | CMS | CMS #1 โลก; WooCommerce variant ได้ | PHP + MariaDB + Nginx | ⭐5 | ⭐5 | 😊5 | 🛠🛠 | 1 | 1 GB | 10 GB | ✅ | built target เก่าต้อง rebuild |
-| <img src="https://raw.githubusercontent.com/woocommerce/woocommerce/trunk/plugins/woocommerce/assets/images/woo-logo.svg" width="28"> | **WooCommerce** | E-Commerce | WordPress plugin สำหรับร้านค้าออนไลน์ | PHP + MariaDB | ⭐5 | ⭐5 | 😊4 | 🛠🛠🛠 | 2 | 2 GB | 15 GB | ✅ | variant ของ WordPress |
-| <img src="https://raw.githubusercontent.com/nextcloud/server/master/core/img/logo/logo.svg" width="28"> | **Nextcloud** 34.x | File Sharing | File sharing + Calendar + Contacts + Talk | PHP + PostgreSQL + Redis | ⭐5 | ⭐4 | 😊4 | 🛠🛠🛠 | 2 | 2 GB | 20 GB | ✅ | built เดิม รอ rebuild latest |
-| <img src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" width="28"> | **Odoo** 19 | ERP/CRM | ERP/CRM/Inventory/Website/E-Commerce | Python + PostgreSQL + Nginx | ⭐4 | ⭐5 | 😊4 | 🛠🛠🛠🛠 | 2 | 2-4 GB | 20 GB | ✅ | guide target 18 |
-| <img src="https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-logo.png" width="28"> | **n8n** 2.25.x stable | Automation | Workflow automation + AI nodes; Zapier/Make replacement | Node.js + PostgreSQL | ⭐5 | ⭐4 | 😊4 | 🛠🛠 | 1-2 | 2 GB | 10 GB | ✅ | รอเติม source |
-| <img src="https://raw.githubusercontent.com/Mintplex-Labs/anything-llm/master/frontend/public/favicon.png" width="28"> | **AnythingLLM** 1.13.x | AI/RAG | Chat with documents, workspaces, Ollama/API provider | Node.js + SQLite/LanceDB | ⭐4 | ⭐4 | 😊5 | 🛠🛠 | 2 | 2-4 GB | 10 GB | ✅ | candidate |
-| <img src="https://raw.githubusercontent.com/dani-garcia/vaultwarden/main/resources/vaultwarden-icon.svg" width="28"> | **Vaultwarden** 1.36.x | Security | Lightweight Bitwarden-compatible password manager | Rust + SQLite/PostgreSQL | ⭐5 | ⭐4 | 😊5 | 🛠 | 1 | 512 MB | 5 GB | ✅ | candidate |
-| <img src="https://raw.githubusercontent.com/umami-software/umami/master/public/icon.svg" width="28"> | **Umami** 3.1.x | Analytics | Privacy-friendly Google Analytics alternative | Node.js + PostgreSQL | ⭐4 | ⭐3 | 😊5 | 🛠🛠 | 1 | 1-2 GB | 10 GB | ✅ | candidate |
-| <img src="https://www.chatwoot.com/favicon.ico" width="28"> | **Chatwoot CE** 4.14.x | Support | Live chat + helpdesk; Intercom/Zendesk alternative | Rails + PostgreSQL + Redis | ⭐4 | ⭐4 | 😊4 | 🛠🛠🛠 | 2-4 | 4 GB | 20 GB | ✅ | candidate |
-| <img src="https://raw.githubusercontent.com/nocodb/nocodb/develop/packages/nc-gui/assets/img/icons/512x512.png" width="28"> | **NocoDB** | No-code DB | Airtable alternative บน PostgreSQL/MySQL | Node.js + PostgreSQL | ⭐4 | ⭐3 | 😊5 | 🛠🛠 | 1-2 | 1-2 GB | 10 GB | ✅ | research needed |
-| <img src="https://coolify.io/favicon.ico" width="28"> | **Coolify** 4.1.x | DevOps/PaaS | Self-hosted Vercel/Heroku/Netlify alternative | Docker + Laravel + PostgreSQL | ⭐5 | ⭐4 | 😊4 | 🛠🛠🛠 | 2 | 2-4 GB | 20 GB | ✅ | candidate |
-| <img src="https://raw.githubusercontent.com/FlowiseAI/Flowise/main/images/flowise_logo.png" width="28"> | **Flowise** | AI Builder | Visual AI agent/RAG/chatflow builder | Node.js | ⭐4 | ⭐3 | 😊4 | 🛠🛠 | 1-2 | 1-2 GB | 10 GB | ✅ | candidate |
-| <img src="https://raw.githubusercontent.com/langgenius/dify/main/web/public/favicon.ico" width="28"> | **Dify CE** 1.14.x | AI Platform | Production AI app/RAG/workflow platform | Python + Node + PostgreSQL + Redis + Vector DB | ⭐5 | ⭐3 | 😊3 | 🛠🛠🛠🛠 | 2+ | 4-8 GB | 20 GB | ✅ | candidate later |
-| <img src="https://raw.githubusercontent.com/makeplane/plane/preview/web/public/favicon/favicon-32x32.png" width="28"> | **Plane CE** 1.3.x | Project Management | Jira/Linear alternative + docs/wiki | Python + Node + PostgreSQL + Redis | ⭐4 | ⭐3 | 😊4 | 🛠🛠🛠 | 2 | 4 GB | 20 GB | ✅ | candidate later |
-| <img src="https://www.docker.com/wp-content/uploads/2022/03/vertical-logo-monochromatic.png" width="28"> | **Docker Platform** | Web Stack | Docker CE + Portainer + Nginx Proxy Manager | Docker + Portainer + NPM | ⭐5 | ⭐4 | 😊4 | 🛠🛠 | 1 | 2 GB | 15 GB | ✅ | พร้อม build |
-| <img src="https://grafana.com/static/assets/img/grafana_logo.svg" width="28"> | **Grafana+Prometheus** | Monitoring | VM / Website / Service monitoring + dashboards | Go + Go | ⭐5 | ⭐3 | 😊3 | 🛠🛠🛠 | 2 | 2 GB | 15 GB | ✅ | พร้อม build |
-| <img src="https://raw.githubusercontent.com/louislam/uptime-kuma/master/public/icon.svg" width="28"> | **Uptime Kuma** 1.x | Monitoring | Uptime monitor เบา, LINE/Telegram alert | Node.js + SQLite | ⭐4 | ⭐4 | 😊5 | 🛠 | 1 | 512 MB | 5 GB | ✅ | wishlist |
-| <img src="https://raw.githubusercontent.com/TryGhost/Ghost/main/apps/admin-x-settings/public/ghost-logo.png" width="28"> | **Ghost** 5.x | CMS | Blog/newsletter สมัยใหม่ | Node.js + SQLite/MySQL | ⭐4 | ⭐2 | 😊4 | 🛠🛠 | 1 | 1 GB | 10 GB | ✅ | wishlist |
-| <img src="https://www.prestashop.com/sites/default/files/logo/favicon-32x32.png" width="28"> | **PrestaShop** 9.x | E-Commerce | ร้านค้าออนไลน์ standalone | PHP + MySQL + Nginx | ⭐3 | ⭐3 | 😊3 | 🛠🛠🛠 | 2 | 2 GB | 15 GB | ✅ | wishlist |
-| <img src="https://erpnext.com/assets/erpnext_logo_dark.svg" width="28"> | **ERPNext** 15.x | ERP/CRM | ERPNext/Frappe suite | Python + MariaDB + Redis | ⭐3 | ⭐3 | 😊3 | 🛠🛠🛠🛠 | 2 | 4 GB | 20 GB | ✅ | wishlist |
-| <img src="https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-stable/public/images/invoiceninja-black-logo.png" width="28"> | **Invoice Ninja** 5.x | Business | Invoicing + clients + payments | PHP + MySQL + Nginx | ⭐3 | ⭐3 | 😊4 | 🛠🛠 | 1 | 1 GB | 10 GB | ✅ | wishlist |
-| <img src="https://download.seafile.com/img/favicon.ico" width="28"> | **Seafile** 12.x | File Sharing | File sync/share เบากว่า Nextcloud | Python + MySQL + Memcached | ⭐3 | ⭐3 | 😊4 | 🛠🛠🛠 | 1 | 2 GB | 20 GB | ✅ | wishlist |
-| <img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="28"> | **PostgreSQL** 17 | Database | RDBMS enterprise-grade | C | ⭐5 | ⭐4 | 😊2 | 🛠 | 1 | 1 GB | 10 GB | ✅ | low priority |
-| <img src="https://moodle.org/theme/moodleorg/pix/moodle_logo_TM.svg" width="28"> | **Moodle** 4.x | Education | LMS สำหรับโรงเรียน/มหาวิทยาลัย | PHP + PostgreSQL/MySQL | ⭐5 | ⭐5 | 😊3 | 🛠🛠🛠🛠 | 2 | 2 GB | 15 GB | ✅ | wishlist |
-| <img src="https://mattermost.com/wp-content/uploads/2022/02/logo-mattermost.svg" width="28"> | **Mattermost** 10.x | Communication | Slack alternative | Go + PostgreSQL + Redis | ⭐4 | ⭐3 | 😊4 | 🛠🛠🛠 | 1-2 | 2 GB | 15 GB | ✅ | wishlist |
-| <img src="https://raw.githubusercontent.com/discourse/discourse/main/public/images/discourse-logo-sketch.png" width="28"> | **Discourse** 3.x | Communication | Modern forum | Ruby + PostgreSQL + Redis | ⭐4 | ⭐3 | 😊5 | 🛠🛠🛠 | 2 | 2 GB | 15 GB | ✅ | wishlist |
-| <img src="https://raw.githubusercontent.com/go-gitea/gitea/main/assets/logo.svg" width="28"> | **Gitea** 1.x | DevOps | Lightweight Git server | Go + SQLite/PostgreSQL | ⭐4 | ⭐3 | 😊4 | 🛠🛠 | 1 | 1 GB | 10 GB | ✅ | wishlist |
-| <img src="https://about.gitlab.com/nuxt-images/ico/favicon.svg" width="28"> | **GitLab CE** 17.x+ | DevOps | Git + CI/CD + registry | Ruby + PostgreSQL + Redis | ⭐5 | ⭐4 | 😊3 | 🛠🛠🛠🛠🛠 | 4 | 4 GB+ | 30 GB | ✅ | low priority/heavy |
-| <img src="https://httpd.apache.org/images/apache.gif" width="28"> | **LAMP Stack** | Web Stack | Apache + MySQL + PHP | Apache + MySQL + PHP | ⭐5 | ⭐5 | 😊3 | 🛠🛠 | 1 | 1 GB | 10 GB | ❌ | low priority |
-
----
-
-## ความหมายของ rating
-
-| Column | 1 | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|---|
-| 🌏 Global | น้อย (<100K) | — | ปานกลาง (1M) | — | ทั่วโลก (100M+) |
-| 🇹🇭 ไทย | ไม่มี demand | — | มีบ้าง | — | demand สูงมาก |
-| 😊 ใช้ง่าย | ต้อง setup เยอะ | — | พอใช้ได้ | — | login ใช้เลย |
-| 🛠 สร้างยาก | ชั่วโมงเดียว | — | ครึ่งวัน | — | 2+ วัน |
-
----
-
-## Build Priority (แนะนำให้ทำก่อน)
-
-| Priority | App | เหตุผล |
-|---|---|---|
-| 🔥🔥🔥 | **n8n** | มี skeleton อยู่แล้วและ demand automation/AI workflow สูง |
-| 🔥🔥🔥 | **Vaultwarden** | เบามาก, value สูง, ใช้ได้ทุกทีม, bootstrap secret ชัด |
-| 🔥🔥🔥 | **AnythingLLM** | AI no-GPU ที่เหมาะสุดสำหรับ image แรก: RAG/doc Q&A + external API/Ollama |
-| 🔥🔥 | **Nextcloud rebuild** | มี built เดิมแต่ต้อง sync source กับ upstream/baseline |
-| 🔥🔥 | **WordPress rebuild** | demand สูงสุด แต่ current image target เก่า |
-| 🔥🔥 | **Umami** | analytics image เบาและใช้ฟรี MIT |
-| 🔥🔥 | **Chatwoot CE** | helpdesk/live chat ใช้เชิงธุรกิจได้จริง |
-| 🔥🔥 | **NocoDB** | Airtable replacement ใช้ง่ายและ resource ไม่สูง |
-| 🔥 | **Flowise** | AI builder เบา เหมาะกับ prototype/internal tools |
-| 🔥 | **Coolify** | PaaS/dev image high value แต่ต้อง harden Docker host |
-| 🔥 | **Dify CE** | AI platform ครบแต่ stack หนักกว่า |
-| 🔥 | **Plane CE** | project management ดีแต่ resource/stack หนัก |
-| — | **Odoo 19 upgrade** | guide Odoo 18 ยังใช้ได้ แต่ latest target ควร research ก่อน upgrade |
-| — | **Grafana+Prometheus** | พร้อม build แล้ว; ทำหลัง app ที่ยังไม่มี source |
-| — | **Docker Platform** | พร้อม build แล้ว; verify pins เป็นรอบๆ |
-| — | **Gitea** | ควรทำก่อน GitLab ถ้าต้องการ Git image เบา |
-| — | **GitLab CE** | หนัก เหมาะเฉพาะลูกค้าที่ต้องการ CI/CD ครบ |
-| — | **PostgreSQL / LAMP** | dev ตั้งเองได้ value ต่ำกว่า app สำเร็จรูป |
 
 ---
 
@@ -174,14 +192,14 @@ volumes:
 
 ---
 
-## License
+## License Notes
 
 | App | License | หมายเหตุ |
 |---|---|---|
 | WordPress, Ghost, WooCommerce | GPLv2/MIT | ฟรีทั้งหมด |
 | PrestaShop, Odoo | OSL-3.0 / LGPL-3.0 | Community edition ฟรี |
 | ERPNext, Nextcloud, Seafile | GPLv3 / AGPLv3 | ฟรีทั้งหมด |
-| GitLab CE, Gitea | MIT | CE ฟรี — EE จ่ายเงิน |
+| GitLab CE, Gitea | MIT | CE ฟรี; EE จ่ายเงิน |
 | Grafana, Prometheus, Uptime Kuma | AGPLv3 / Apache-2.0 / MIT | ฟรีทั้งหมด |
 | PostgreSQL, Moodle | PostgreSQL License / GPLv3 | ฟรีทั้งหมด |
 | Mattermost, Discourse | MIT / GPLv2 | Community edition ฟรี |

@@ -9,7 +9,7 @@
 OpenStack Image คือ domain รวมศูนย์สำหรับการสร้าง และบริหารจัดการ **golden images** ที่ใช้งานจริง เช่น:
 
 - **Guest images** — OS พื้นฐาน (Ubuntu, Debian, Rocky, AlmaLinux, etc.) ให้ลูกค้าสร้าง VM จาก
-- **App images** — OS + application stack พร้อมใช้ (WordPress, Nextcloud, Odoo, Docker Platform, Grafana+Prometheus, n8n) และ candidate ใหม่ เช่น Vaultwarden, AnythingLLM, Umami
+- **App images** — OS + application stack พร้อมใช้ (WordPress, Nextcloud, Odoo, Docker Platform, Grafana+Prometheus, n8n) และ candidate แยกตามหมวดใน catalog เช่น Vaultwarden, AnythingLLM, Umami
 - **Build pipeline** — ขั้นตอน, automation, testing สำหรับการ capture images
 - **References** — mirror config, cloud-init templates, troubleshooting
 
@@ -20,15 +20,16 @@ OpenStack Image คือ domain รวมศูนย์สำหรับก�
 ```text
 openstack-image/
 ├── agents/                    ← Agent Specs (สั่งงาน AI)
-│   ├── image-sleuth.md       (นักสืบ — วิจัย community, เขียน review)
-│   ├── image-engineer.md     (วิศวกร — ออกแบบ app, เขียน build guide)
-│   ├── image-maker.md        (ช่างทำ — SSH build, verify, บันทึก errors)
-│   └── image-scribe.md       (นักทำเอกสาร — อัปเดต docs, ลบ temp)
+│   ├── aerith.md              (Aerith — วิจัย community, เขียน review)
+│   ├── cid.md                 (Cid — ออกแบบ app, เขียน build guide)
+│   ├── cloud.md               (Cloud — SSH build, verify, บันทึก errors)
+│   ├── tifa.md                (Tifa — อัปเดต docs, ลบ temp)
+│   └── nanaki.md              (Nanaki — สร้างคู่มือ end-user HTML)
 ├── docs/                        ← Documentation (คุณอยู่ที่นี่)
 │   ├── README.md               (domain overview)
 │   ├── AGENT-SPEC.md           (agent flow overview + links ไป 4 agents)
 │   ├── AGENTS.md               (กติกากลาง — ทุก agent ต้องปฏิบัติตาม)
-│   ├── AI-PIPELINE.md          (build pipeline framework — ช่างทำใช้หลัก)
+│   ├── AI-PIPELINE.md          (build pipeline framework — Cloud ใช้หลัก)
 │   ├── DEPENDENCIES.md         (dependency map — ไฟล์ A ↔ ไฟล์ B)
 │   ├── ARCHITECTURE.md         (visual folder structure + purpose)
 │   ├── examples/               (ว่าง — สำหรับ step-by-step build examples ในอนาคต)
@@ -59,6 +60,7 @@ openstack-image/
 │   │   │   └── 99-wordpress-image
 │   │   ├── nextcloud/
 │   │   ├── odoo/
+│   │   ├── woocommerce/
 │   │   ├── docker-platform/
 │   │   ├── grafana-prometheus/
 │   │   └── n8n/
@@ -86,14 +88,15 @@ openstack-image/
 | ประเภท | คำอธิบาย | ไฟล์ | สถานะ |
 |---|---|---|---|
 | **Guest images** | OS พื้นฐาน (9 OS) — cleanup + cloud-init พร้อม | `build/_guest-images.md` | ⚠️ pipeline |
-| **App catalog** | Overview app status + latest upstream + wishlist + priority | `build/_app-catalog.md` | ✅ updated 2026-06-14 |
-| **WordPress** | CMS — MariaDB + PHP-FPM + Nginx | `build/apps/wordpress/` | ✅ built standalone; target เก่าต้อง rebuild latest |
-| **Nextcloud** | File sync — PostgreSQL + Redis + Nginx | `build/apps/nextcloud/` | ⚠️ built เดิม แต่รอ source sync/rebuild |
-| **Odoo** | ERP/CRM — PostgreSQL + Odoo 18 guide; upstream 19 | `build/apps/odoo/` | ✅ พร้อม build; optional upgrade |
-| **Docker Platform** | Web stack — Docker CE + Portainer + Nginx Proxy Manager | `build/apps/docker-platform/` | ✅ พร้อม build |
-| **Grafana+Prometheus** | Monitoring — VM / Website / Service monitoring | `build/apps/grafana-prometheus/` | ✅ พร้อม build |
+| **App catalog** | Overview app status + upstream signal + catalog by category | `build/_app-catalog.md` | ✅ updated 2026-06-15 |
+| **WordPress** | CMS — MariaDB + PHP-FPM + Nginx | `build/apps/wordpress/` | ✅ built standalone; ต้องเลือก target line ก่อน rebuild |
+| **WooCommerce** | E-Commerce — WordPress + WooCommerce bootstrap | `build/apps/woocommerce/` | ✅ พร้อม build |
+| **Nextcloud** | File sync — PostgreSQL + Redis + Nginx | `build/apps/nextcloud/` | ⚠️ built เดิม แต่ source target เก่า ต้อง sync/rebuild |
+| **Odoo** | ERP/CRM — PostgreSQL + Odoo 18 guide | `build/apps/odoo/` | ✅ พร้อม build; optional Odoo 19 review |
+| **Docker Platform** | DevOps platform — Docker CE + Portainer + Nginx Proxy Manager | `build/apps/docker-platform/` | ✅ พร้อม build |
+| **Grafana+Prometheus** | Monitoring — VM / Website / Service monitoring | `build/apps/grafana-prometheus/` | ✅ built standalone; พร้อม capture/Glance ตาม admin workflow |
 | **n8n** | Workflow automation — PostgreSQL + Nginx | `build/apps/n8n/` | ❌ รอเติม source |
-| **Candidate images** | Vaultwarden, AnythingLLM, Umami, Chatwoot, NocoDB, Coolify, Flowise, Dify, Plane | `build/_app-catalog.md` | 🧭 research แล้ว / ยังไม่มี source |
+| **Candidate images** | แยกหมวดใน catalog เช่น Vaultwarden, AnythingLLM, Umami, Chatwoot, NocoDB | `build/_app-catalog.md` | 🧭 ยังไม่มี source ต้องทำ review/source ก่อน build |
 
 ---
 
@@ -105,10 +108,10 @@ openstack-image/
 - **`docs/AGENTS.md`** — กติกากลาง (ทุก agent ต้องปฏิบัติตาม)
 
 ### 2️⃣ **Agent Specs** (เลือกตามหน้าที่)
-- **`agents/image-sleuth.md`** — นักสืบ: วิจัย community + เขียน review
-- **`agents/image-engineer.md`** — วิศวกร: ออกแบบ app + เขียน build guide
-- **`agents/image-maker.md`** — ช่างทำ: SSH build + verify + บันทึก errors
-- **`agents/image-scribe.md`** — นักทำเอกสาร: อัปเดต docs + ลบ temp
+- **`agents/aerith.md`** — Aerith: วิจัย community + เขียน review
+- **`agents/cid.md`** — Cid: ออกแบบ app + เขียน build guide
+- **`agents/cloud.md`** — Cloud: SSH build + verify + บันทึก errors
+- **`agents/tifa.md`** — Tifa: อัปเดต docs + ลบ temp
 
 ### 3️⃣ **Reference**
 - **`docs/references/mirrors.md`** — Mirror availability matrix (TH mirrors)
@@ -152,13 +155,13 @@ openstack-image/
    → Self-Upgrade: stack-components.md ถ้าพบ component ใหม่
 
 4. ระหว่าง build
-   → Maker รัน guide ทีละขั้น — verify ทุกคำสั่ง
+   → Cloud รัน guide ทีละขั้น — verify ทุกคำสั่ง
    → ถ้าสั่งผิด → บันทึกใน build/apps/{app}/{app}-errors.md
    → คำสั่ง + fix + root cause
    → Self-Upgrade: mirror matrix / cloud-init ถ้าเจอ behavior ใหม่
 
 5. หลัง build เสร็จ
-   → Scribe อัปเดต build/_app-catalog.md (status)
+   → Tifa อัปเดต build/_app-catalog.md (status)
    → อัปเดต build/apps/{app}/{app}.md (header tag: [built: ...])
    → Backfill Lessons Learned → {app}-review.md
    → อัปเดต stack-components.md ถ้าพบ component ใหม่
@@ -247,10 +250,10 @@ Golden-image persistent:
    - `docs/AGENT-SPEC.md` — อ่านก่อน: agent flow + links ไป 4 agents
    - `docs/AGENTS.md` — กติกากลาง (ทุก agent ต้องปฏิบัติตาม)
    - เลือก agent ตามหน้าที่:
-     - วิจัย → `agents/image-sleuth.md`
-     - ออกแบบ → `agents/image-engineer.md`
-     - Build → `agents/image-maker.md` + `docs/AI-PIPELINE.md`
-     - อัปเดต docs → `agents/image-scribe.md` + `docs/DEPENDENCIES.md`
+     - วิจัย → `agents/aerith.md`
+      - ออกแบบ → `agents/cid.md`
+      - Build → `agents/cloud.md` + `docs/AI-PIPELINE.md`
+      - อัปเดต docs → `agents/tifa.md` + `docs/DEPENDENCIES.md`
 
 2. **หาก user ต้องการสร้าง app image ใหม่:**
    - AI อ่าน `build/_app-catalog.md`

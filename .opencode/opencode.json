@@ -1,7 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["docs/AGENTS.md", "docs/AGENT-SPEC.md"],
-  "default_agent": "image-sleuth",
+  "default_agent": "aerith",
   "mcp": {
     "playwright": {
       "type": "local",
@@ -30,21 +30,30 @@
       "enabled": true
     }
   },
-  "tools": {
-    "playwright_*": false,
-    "context7_*": false,
-    "github_*": false,
-    "ssh_*": false
+  "permission": {
+    "playwright_*": "deny",
+    "context7_*": "deny",
+    "github_*": "deny",
+    "ssh_*": "deny"
   },
   "agent": {
-    "image-sleuth": {
-      "tools": { "playwright_*": true, "github_*": true }
+    "aerith": {
+      "mode": "subagent",
+      "permission": { "playwright_*": "allow", "github_*": "allow" }
     },
-    "image-engineer": {
-      "tools": { "playwright_*": true, "context7_*": true, "github_*": true }
+    "cid": {
+      "mode": "subagent",
+      "permission": { "playwright_*": "allow", "context7_*": "allow", "github_*": "allow" }
     },
-    "image-maker": {
-      "tools": { "ssh_*": true }
+    "cloud": {
+      "mode": "subagent",
+      "permission": { "ssh_*": "allow" }
+    },
+    "tifa": {
+      "mode": "subagent"
+    },
+    "nanaki": {
+      "mode": "subagent"
     }
   }
 }

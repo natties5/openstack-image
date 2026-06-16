@@ -1,20 +1,12 @@
 #!/bin/sh
-cat << 'EOF'
+IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+cat << EOF
 
-Grafana+Prometheus Monitoring Image
-------------------------------------
-Grafana: http://<VM-IP>/
+ระบบเฝ้าระวัง Grafana + Prometheus
+===================================
+Grafana:   http://${IP:-<VM-IP>}/
+รหัสผ่าน:  sudo monitoring-info
+ดูสถานะ:   sudo monitoring-status
 
-Read generated login info:
-  sudo monitoring-info
-
-Useful commands:
-  sudo monitoring-status
-  sudo monitoring-list-targets
-  sudo monitoring-add-http https://example.com website
-  sudo monitoring-reset-grafana-password
-
-Docs:
-  /root/README-grafana-prometheus-image.txt
-
+อ่านไฟล์: /root/README-grafana-prometheus-image.txt
 EOF

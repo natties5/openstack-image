@@ -8,10 +8,11 @@
 openstack-image/
 │
 ├── 📂 agents/                       [AI Agent Specs — Operational]
-│   ├── image-sleuth.md            (นักสืบ — วิจัย community, เขียน review)
-│   ├── image-engineer.md          (วิศวกร — ออกแบบ app, เขียน build guide)
-│   ├── image-maker.md             (ช่างทำ — SSH build, verify, บันทึก errors)
-│   └── image-scribe.md            (นักทำเอกสาร — อัปเดต docs, ลบ temp)
+│   ├── aerith.md                 (Aerith — วิจัย community, เขียน review)
+│   ├── cid.md                    (Cid — ออกแบบ app, เขียน build guide)
+│   ├── cloud.md                  (Cloud — SSH build, verify, บันทึก errors)
+│   ├── tifa.md                   (Tifa — อัปเดต docs, ลบ temp)
+│   └── nanaki.md                 (Nanaki — สร้างคู่มือ end-user HTML)
 │
 ├── 📂 docs/                          [Documentation Centralized]
 │   ├── README.md                    (Domain overview + quick start)
@@ -166,12 +167,12 @@ Update:
 | Folder | Owner | Read By | Write By |
 |---|---|---|---|
 | agents/ | All agents | All agents | All agents |
-| docs/ | นักทำเอกสาร | Everyone | นักทำเอกสาร + maintainers |
-| scripts/ | วิศวกร + ช่างทำ | User + agents | Maintainers |
-| build/apps/{app}/ | วิศวกร + ช่างทำ | All agents | วิศวกร + ช่างทำ + นักทำเอกสาร |
+| docs/ | Tifa | Everyone | Tifa + maintainers |
+| scripts/ | Cid + Cloud | User + agents | Maintainers |
+| build/apps/{app}/ | Cid + Cloud | All agents | Cid + Cloud + Tifa |
 | build/templates/ | Maintainers | New app creation | Maintainers |
-| inventory/images/ | นักทำเอกสาร | Build review | นักทำเอกสาร |
-| problem/generic/ | ช่างทำ + นักทำเอกสาร | Troubleshooting | ช่างทำ + นักทำเอกสาร |
+| inventory/images/ | Tifa | Build review | Tifa |
+| problem/generic/ | Cloud + Tifa | Troubleshooting | Cloud + Tifa |
 
 ---
 
@@ -195,10 +196,10 @@ credentials.txt                     # credentials
 ```
 docs/AGENT-SPEC.md                [START HERE — Agent Flow]
     ↓
-    ├─ agents/image-sleuth.md      (if วิจัย)
-    ├─ agents/image-engineer.md    (if ออกแบบ)
-    ├─ agents/image-maker.md       (if build) → docs/AI-PIPELINE.md
-    └─ agents/image-scribe.md     (if อัปเดต docs) → docs/DEPENDENCIES.md
+    ├─ agents/aerith.md            (if วิจัย)
+    ├─ agents/cid.md               (if ออกแบบ)
+    ├─ agents/cloud.md             (if build) → docs/AI-PIPELINE.md
+    └─ agents/tifa.md              (if อัปเดต docs) → docs/DEPENDENCIES.md
 
 docs/AGENTS.md                     [COMMON RULES — All agents must follow]
     ↓
@@ -217,30 +218,30 @@ docs/AGENTS.md                     [COMMON RULES — All agents must follow]
 3. `build/apps/{app}/{app}.md` → Build guide
 4. Follow commands (copy-paste ready)
 
-### 🤖 **นักสืบ (Research app)**
+### 🤖 **Aerith (Research app)**
 1. `docs/AGENT-SPEC.md` → Agent flow overview
-2. `agents/image-sleuth.md` → นักสืบ spec
+2. `agents/aerith.md` → Aerith spec
 3. `build/_app-catalog.md` → App status
 4. Search community (Reddit, StackOverflow, GitHub)
 5. Write `build/apps/{app}/{app}-review.md`
 
-### 🏗️ **วิศวกร (Design app image)**
+### 🏗️ **Cid (Design app image)**
 1. `docs/AGENT-SPEC.md` → Agent flow overview
-2. `agents/image-engineer.md` → วิศวกร spec
+2. `agents/cid.md` → Cid spec
 3. `build/apps/{app}/{app}-review.md` → Community research
 4. `docs/references/mirrors.md` → Mirror config
 5. Write `build/apps/{app}/{app}.md` + source files
 
-### 🔧 **ช่างทำ (Build on VM)**
+### 🔧 **Cloud (Build on VM)**
 1. `docs/AGENT-SPEC.md` → Agent flow overview
-2. `agents/image-maker.md` → ช่างทำ spec
+2. `agents/cloud.md` → Cloud spec
 3. `docs/AI-PIPELINE.md` → Build pipeline framework
 4. `build/apps/{app}/{app}.md` → Build guide
 5. SSH to VM → build → verify → record errors
 
-### 📝 **นักทำเอกสาร (Update docs)**
+### 📝 **Tifa (Update docs)**
 1. `docs/AGENT-SPEC.md` → Agent flow overview
-2. `agents/image-scribe.md` → นักทำเอกสาร spec
+2. `agents/tifa.md` → Tifa spec
 3. `docs/DEPENDENCIES.md` → Dependency map
 4. Update `_app-catalog.md`, `{app}.md`, `README.md`
 

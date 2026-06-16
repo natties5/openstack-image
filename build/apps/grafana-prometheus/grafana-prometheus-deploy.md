@@ -119,7 +119,8 @@ Set permissions:
 chmod +x /usr/local/sbin/grafana-prometheus-bootstrap.sh
 chmod +x /usr/local/sbin/monitoring-*
 chmod +x /etc/update-motd.d/99-grafana-prometheus-image
-chmod 600 /opt/monitoring/alertmanager/alertmanager.yml
+chmod 644 /opt/monitoring/alertmanager/alertmanager.yml
+sed -i 's/\r$//' /usr/local/sbin/grafana-prometheus-bootstrap.sh /usr/local/sbin/monitoring-* /etc/update-motd.d/99-grafana-prometheus-image
 ```
 
 ---

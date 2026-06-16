@@ -7,28 +7,55 @@
 
 ## Agent Flow
 
+### Pipeline Agents (4 ตัว)
+
 ```text
 User: "สร้าง X image"
   │
   ▼
-1. นักสืบ (Sleuth) ─── วิจัย community → เขียน {app}-review.md
-  │                          → spec: agents/image-sleuth.md
+1. Aerith ─── วิจัย community → เขียน {app}-review.md
+  │                          → spec: agents/aerith.md
   │                          → self-upgrade: queries + scoring
   ▼
-2. วิศวกร (Engineer) ── ออกแบบ stack → เขียน {app}.md + source
-  │                          → spec: agents/image-engineer.md
+2. Cid ── ออกแบบ stack → เขียน {app}.md + source
+  │                          → spec: agents/cid.md
   │                          → self-upgrade: stack-components.md
   ▼
-3. ช่างทำ (Maker) ────── SSH build → verify → บันทึก errors
-  │                          → spec: agents/image-maker.md
+3. Cloud ────── SSH build → verify → บันทึก errors
+  │                          → spec: agents/cloud.md
   │                          → self-upgrade: mirror matrix + cloud-init
   ▼
-4. นักทำเอกสาร (Scribe) ─ อัปเดต docs → ปิด loop → ลบ temp → จบ
-                               → spec: agents/image-scribe.md
-                               → self-upgrade: dependency map
+4. Tifa ─ อัปเดต docs → ปิด loop → ลบ temp → จบ
+                                → spec: agents/tifa.md
+                                → self-upgrade: dependency map
 ```
 
-ถ้า `{app}-review.md` มีอยู่และเนื้อหายังใช้ได้ → ข้ามนักสืบ เริ่มที่วิศวกรเลย
+ถ้า `{app}-review.md` มีอยู่และเนื้อหายังใช้ได้ → ข้าม Aerith เริ่มที่ Cid เลย
+
+### Standalone Agents
+
+#### Nanaki
+
+```text
+User: "สร้างคู่มือ {app}"
+  │
+  ▼
+Prerequisite: {app}.md header tag = [built: standalone]
+  │
+  ▼
+Nanaki:
+  1. อ่าน README + source + build guide + errors
+  2. ถาม Cid (task subagent) — config, behavior → รอคำตอบ
+  3. ถาม Cloud (task subagent) — build issues, pitfalls → รอคำตอบ
+  4. สร้าง manual.html
+  │
+  ▼
+ส่งต่อ → Tifa sync docs (รวม manual.html ใน catalog)
+```
+
+**Trigger:** User สั่ง "สร้างคู่มือ {app}"
+**Spec:** `agents/nanaki.md`
+**Self-upgrade:** template HTML + section patterns
 
 ---
 
@@ -44,12 +71,13 @@ build/apps/<app>/
 ├── bootstrap.sh
 ├── bootstrap.service
 ├── README-<app>-image.txt
-└── 99-<app>-image
+├── 99-<app>-image
+└── manual.html           ← คู่มือ end-user (Nanaki สร้าง — user trigger)
 ```
 
 **กฎ 3 ไฟล์:**
 1. **`<app>.md`** — Self-contained: ผู้ใช้ copy คำสั่งไปรันบน VM ได้เลย ใช้ `cat > file << 'EOF'` สร้างไฟล์ ไม่ต้องพึ่ง source folder
-2. **`<app>-review.md`** — Community research: ห้ามเป็น AI test scenario ตัวเอง ต้องอ้างอิงจาก community จริง (ดู `agents/image-sleuth.md`)
+2. **`<app>-review.md`** — Community research: ห้ามเป็น AI test scenario ตัวเอง ต้องอ้างอิงจาก community จริง (ดู `agents/aerith.md`)
 3. **`<app>-errors.md`** — Log คำสั่งผิดของ AI: เก็บทุกครั้งที่ AI ให้คำสั่งแล้วพัง
 
 ---
@@ -84,6 +112,21 @@ build/apps/<app>/
 
 ---
 
+## Post-Test Policy
+
+Post-test คือการตรวจ VM ใหม่ที่สร้างจาก image หลัง capture/deploy แล้ว ไม่ใช่ pre-capture gate ของ golden-image VM
+
+- ก่อน post-test ต้องถาม cleanup mode ทุกครั้ง: `no-cleanup` หรือ `cleanup-test-targets`
+- `no-cleanup` คือทิ้ง containers, volumes, `.env`, README, marker, logs, test targets และ password state ไว้ให้ user/admin ตรวจต่อ
+- `cleanup-test-targets` คือ cleanup เฉพาะ target ทดสอบที่ checklist เพิ่ม แล้ว reload app
+- Reboot test เป็น optional final gate ต้องถาม user/admin ก่อนทุกครั้ง และต้องทำเป็นขั้นตอนสุดท้ายเท่านั้น
+- ถ้า post-test เจอ bug จริง ให้แก้ source/guide/docs ตาม root cause ในรอบเดียวกัน ไม่ใช่สรุปอย่างเดียว
+- ถ้า bug เป็น pattern กลาง ให้ update `docs/AI-PIPELINE.md`, `docs/DEPENDENCIES.md`, และ agent spec ที่เกี่ยวข้อง
+- ทุก app post-check ที่พร้อมใช้งานจริงควรมี overview checklist table, pipeline scope, failure routing, cleanup/no-cleanup policy, expected exceptions
+- ห้ามบันทึก runtime password, floating IP, server ID, image ID หรือ credentials ลง repo
+
+---
+
 ## ภาษาและสไตล์
 
 - ✅ ใช้ภาษาไทยเป็นหลัก
@@ -111,17 +154,18 @@ build/apps/<app>/
 | เอกสาร | หน้าที่ |
 |---|---|
 | [`docs/AGENT-SPEC.md`](AGENT-SPEC.md) | Overview — agent flow + links + cross-ownership + self-upgrade |
-| [`agents/image-sleuth.md`](../agents/image-sleuth.md) | นักสืบ — วิจัย + เขียน review |
-| [`agents/image-engineer.md`](../agents/image-engineer.md) | วิศวกร — ออกแบบ + เขียน guide |
-| [`agents/image-maker.md`](../agents/image-maker.md) | ช่างทำ — build + verify |
-| [`agents/image-scribe.md`](../agents/image-scribe.md) | นักทำเอกสาร — อัปเดต docs + ปิด loop |
-| [`docs/AI-PIPELINE.md`](AI-PIPELINE.md) | Build pipeline framework (ช่างทำใช้หลัก) |
-| [`docs/DEPENDENCIES.md`](DEPENDENCIES.md) | ไฟล์ไหนต้องอัปเดตพร้อมกัน (นักทำเอกสารใช้หลัก) |
-| [`docs/references/mirrors.md`](references/mirrors.md) | Mirror ไทย (ช่างทำใช้) |
-| [`docs/references/stack-components.md`](references/stack-components.md) | Component catalog (วิศวกรใช้หลัก) |
+| [`agents/aerith.md`](../agents/aerith.md) | Aerith — วิจัย + เขียน review |
+| [`agents/cid.md`](../agents/cid.md) | Cid — ออกแบบ + เขียน guide |
+| [`agents/cloud.md`](../agents/cloud.md) | Cloud — build + verify |
+| [`agents/tifa.md`](../agents/tifa.md) | Tifa — อัปเดต docs + ปิด loop |
+| [`agents/nanaki.md`](../agents/nanaki.md) | Nanaki — สร้างคู่มือ end-user HTML (standalone — user trigger) |
+| [`docs/AI-PIPELINE.md`](AI-PIPELINE.md) | Build pipeline framework (Cloud ใช้หลัก) |
+| [`docs/DEPENDENCIES.md`](DEPENDENCIES.md) | ไฟล์ไหนต้องอัปเดตพร้อมกัน (Tifa ใช้หลัก) |
+| [`docs/references/mirrors.md`](references/mirrors.md) | Mirror ไทย (Cloud ใช้) |
+| [`docs/references/stack-components.md`](references/stack-components.md) | Component catalog (Cid ใช้หลัก) |
 | [`build/_app-catalog.md`](../build/_app-catalog.md) | สถานะ app ปัจจุบัน |
 
 ---
 
-**Version:** 2026-06-12
+**Version:** 2026-06-16
 **Domain:** openstack-image

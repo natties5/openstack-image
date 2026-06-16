@@ -1,4 +1,4 @@
-# Grafana+Prometheus Image — Ubuntu 26.04 [พร้อม build]
+# Grafana+Prometheus Image — Ubuntu 26.04 [built: standalone]
 
 > Image สำเร็จรูป: สร้าง VM → Grafana + Prometheus + Alertmanager พร้อมใช้ → ลูกค้าเพิ่ม VM/URL/port ที่ต้องการ monitor เองได้แบบ self-service
 
@@ -209,7 +209,8 @@ chmod 755 /opt/monitoring
 chmod +x /usr/local/sbin/grafana-prometheus-bootstrap.sh
 chmod +x /usr/local/sbin/monitoring-*
 chmod +x /etc/update-motd.d/99-grafana-prometheus-image
-chmod 600 /opt/monitoring/alertmanager/alertmanager.yml
+chmod 644 /opt/monitoring/alertmanager/alertmanager.yml
+sed -i 's/\r$//' /usr/local/sbin/grafana-prometheus-bootstrap.sh /usr/local/sbin/monitoring-* /etc/update-motd.d/99-grafana-prometheus-image
 ```
 
 ### 5. Enable bootstrap service
@@ -334,9 +335,9 @@ sudo monitoring-info
 
 ---
 
-## ส่งต่อ Maker
+## ส่งต่อ Cloud
 
-Maker ต้อง verify:
+Cloud ต้อง verify:
 - Docker Compose config valid
 - Prometheus config/rules valid
 - first boot generate password จริง

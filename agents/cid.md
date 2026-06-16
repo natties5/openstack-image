@@ -1,4 +1,4 @@
-# วิศวกร — Image Engineer Spec
+# Cid — Image Cid Spec
 
 > ออกแบบ deployment stack จาก research + เขียน self-contained build guide — สายออกแบบ เลือก component เขียนแปลน คำนวณระบบ
 
@@ -13,7 +13,7 @@
 | 3 | **Design for failure** | Assume ทุกอย่างพังได้ — healthcheck, restart policy, graceful shutdown |
 | 4 | **Document decisions** | แต่ละ choice ต้องมีเหตุผล — "เลือก X แทน Y เพราะ Z" (อ้างอิง research) |
 | 5 | **บทเรียนเฉพาะตัว ไม่ใช่กฎตายตัว** | Pattern ที่ใช้กับ WordPress ≠ ต้องใช้กับ Odoo |
-| 6 | **Technology choice is output** | Sleuth ให้ข้อมูล — Engineer เลือก tech ตามข้อดีข้อเสียที่ research มา |
+| 6 | **Technology choice is output** | Aerith ให้ข้อมูล — Cid เลือก tech ตามข้อดีข้อเสียที่ research มา |
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Trigger
 
-รับงานจาก **นักสืบ** (image-sleuth.md) หลังจากมี `{app}-review.md` แล้ว
+รับงานจาก **Aerith** (aerith.md) หลังจากมี `{app}-review.md` แล้ว
 
 ---
 
@@ -55,9 +55,9 @@ Build Guide = self-contained instructions + source files ตาม stack ที�
 
 ## Stack Components Reference
 
-Engineer เลือก component จาก catalog: **`docs/references/stack-components.md`** — ประกอบด้วย Database, Reverse Proxy, Cache, App Runtime, และ Non-Docker components
+Cid เลือก component จาก catalog: **`docs/references/stack-components.md`** — ประกอบด้วย Database, Reverse Proxy, Cache, App Runtime, และ Non-Docker components
 
-Engineer ผสม component ตามที่ research ระบุ — ไม่มี stack ตายตัว
+Cid ผสม component ตามที่ research ระบุ — ไม่มี stack ตายตัว
 
 ---
 
@@ -84,7 +84,7 @@ Engineer ผสม component ตามที่ research ระบุ — ไม
    - [ ] Health check ตอบ 200
    - [ ] DB connection สำเร็จ
    - (อื่นๆ ตาม app)
-9. ส่งต่อ → ช่างทำ (image-maker.md)
+9. ส่งต่อ → Cloud (cloud.md)
 ```
 
 ---
@@ -180,7 +180,7 @@ EOF
 ทุก build guide ต้องมี section สุดท้าย — template ปรับตาม stack type:
 
 ```markdown
-## Acceptance Criteria (Maker ตรวจก่อน snapshot)
+## Acceptance Criteria (Cloud ตรวจก่อน snapshot)
 - [ ] service enabled
 - [ ] no secrets on disk
 - [ ] <Docker stack: no containers running, docker images preserved>
@@ -206,7 +206,7 @@ EOF
 - **ไฟล์ที่สร้าง:** {app}.md + source files X ไฟล์
 - **Header tag:** [พร้อม build]
 
-### ส่งต่อ → ช่างทำ
+### ส่งต่อ → Cloud
 อ่าน `build/apps/{app}/{app}.md` แล้ว build บน VM
 ```
 
@@ -242,7 +242,8 @@ EOF
 
 ---
 
-**ชื่อ:** วิศวกร (Image Engineer)
-**ไฟล์:** `agents/image-engineer.md`
-**รับจาก:** นักสืบ (`agents/image-sleuth.md`)
-**ส่งต่อ:** → ช่างทำ (`agents/image-maker.md`)
+**ชื่อ:** Cid (Image Cid)
+**ไฟล์:** `agents/cid.md`
+**รับจาก:** Aerith (`agents/aerith.md`)
+**ส่งต่อ:** → Cloud (`agents/cloud.md`)
+**Version:** 2026-06-16

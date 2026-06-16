@@ -21,6 +21,13 @@
 | | `build/_guest-images.md` (if cloud-init changed) | Update cloud-init usage in guest build | MEDIUM |
 | | `docs/README.md` (if structure changed) | Update cloud-init reference link | LOW |
 | `problem/generic/{issue}.md` (new generic issue) | `docs/README.md` | Add to troubleshooting section | LOW |
+| `build/apps/{app}/{app}-post-check.md` (post-test checklist/scope/failure routing) | `docs/AI-PIPELINE.md` | If checklist introduces generic post-test policy | MEDIUM |
+| | `docs/DEPENDENCIES.md` | If new dependency chain is discovered | MEDIUM |
+| `build/apps/{app}/manual.html` (user manual) | `build/_app-catalog.md` | If manual indicates new app status or new category | LOW |
+| | `build/apps/{app}/{app}-errors.md` | If build issue changes manual content | LOW |
+| Post-test bug fix in `build/apps/{app}/` source or guide | `build/apps/{app}/{app}-post-check.md` | Document verification and expected result | HIGH |
+| | `build/apps/{app}/{app}-errors.md` | If AI command failed during post-test/build | HIGH |
+| | `docs/AI-PIPELINE.md` | If fix changes generic pipeline behavior | MEDIUM |
 | **Folder structure changes** | | | |
 | Rename folder or create new domain | `docs/ARCHITECTURE.md` | Update folder tree | HIGH |
 | | `docs/README.md` | Update quick links | HIGH |
@@ -32,10 +39,11 @@
 
 | File | Used By | Purpose |
 |---|---|---|
-| `agents/image-sleuth.md` | นักสืบ | Community research |
-| `agents/image-engineer.md` | วิศวกร | Build guide + source design |
-| `agents/image-maker.md` | ช่างทำ | SSH build + verify + errors |
-| `agents/image-scribe.md` | นักทำเอกสาร | Doc updates + dependency check |
+| `agents/aerith.md` | Aerith | Community research |
+| `agents/cid.md` | Cid | Build guide + source design |
+| `agents/cloud.md` | Cloud | SSH build + verify + errors |
+| `agents/tifa.md` | Tifa | Doc updates + dependency check |
+| `agents/nanaki.md` | Nanaki | User manual creation + maintenance |
 | `docs/README.md` | **Entry point** — links to all other docs | Domain overview |
 | `docs/AGENT-SPEC.md` | All agents | Agent flow overview + links |
 | `docs/AGENTS.md` | All agents | Common rules |
@@ -44,9 +52,12 @@
 | `docs/references/cloud-init-scenarios.md` | `build/_guest-images.md` + app guides | Cloud-init templates |
 | `build/_guest-images.md` | Build automation | Guest image pipeline |
 | `build/_app-catalog.md` | `docs/README.md` + AI agents | App status overview |
-| `build/apps/{app}/{app}.md` | ช่างทำ + นักทำเอกสาร | Per-app build guide |
-| `build/apps/{app}/{app}-review.md` | นักสืบ + วิศวกร | Feature selection |
-| `build/apps/{app}/{app}-errors.md` | ช่างทำ + นักทำเอกสาร | Error learning log |
+| `build/_manual-template.html` | Nanaki + Cid | HTML template สำหรับคู่มือ end-user |
+| `build/apps/{app}/{app}.md` | Cloud + Tifa | Per-app build guide |
+| `build/apps/{app}/{app}-review.md` | Aerith + Cid | Feature selection |
+| `build/apps/{app}/{app}-errors.md` | Cloud + Tifa | Error learning log |
+| `build/apps/{app}/{app}-post-check.md` | Cloud + Tifa | Post-test checklist, cleanup mode, failure routing |
+| `build/apps/{app}/manual.html` | Nanaki + end-user | User manual (HTML) |
 | `scripts/templates/*.sh.tmpl` | *(planned — not yet created)* User + `Makefile` | Build automation |
 | `scripts/utils/*.py` | *(planned — not yet created)* Build automation | Pre-flight + validation |
 | `scripts/README.md` | *(planned — not yet created)* User | Scripts documentation |
@@ -101,6 +112,33 @@
 
 ---
 
+### Scenario 2.5: Post-Test App Image หลังสร้าง VM ใหม่
+
+```text
+1. Read build/apps/{app}/{app}-post-check.md
+   ↓
+2. Ask user cleanup mode: no-cleanup หรือ cleanup-test-targets
+   ↓
+3. Run post-test checklist on VM from image
+   ↓
+4. Ask user/admin before optional final reboot gate; if approved, run reboot persistence test last
+   ↓
+5. If post-test passes: update post-check with new expected exceptions/checks if discovered
+   ↓
+6. If post-test finds app/source bug: fix source files + {app}.md/deploy guide
+   ↓
+7. Update {app}-errors.md if AI command failed or wrong instruction caused failure
+   ↓
+8. Update docs/AI-PIPELINE.md if the lesson is generic across apps
+   ↓
+9. Update build/_app-catalog.md/docs/README.md only if image status changes
+```
+
+**Affected files:** 1-6 files
+**Dependency chain:** Step 1 → 2 → 3 → 4/5/6 → 7/8 as needed
+
+---
+
 ### Scenario 3: พบ Mirror Issue ใหม่ + Fix
 
 ```text
@@ -125,7 +163,7 @@
 | Mistake | Impact | Fix |
 |---|---|---|
 | ✅ Update `build/_app-catalog.md` but forget `docs/README.md` | Status table out of sync | Always update both |
-| ✅ Add new catalog category but forget `stack-components.md` | Engineer has no reusable pattern | Add category pattern if based on real research/build |
+| ✅ Add new catalog category but forget `stack-components.md` | Cid has no reusable pattern | Add category pattern if based on real research/build |
 | ✅ Change mirror but forget to update `docs/AGENTS.md` | Mirror matrix outdated | Update dependency immediately |
 | ✅ Create new guest image but forget to update `docs/README.md` | Broken quick links | Update overview doc |
 | ✅ Commit `build/tmp/*.env` to git | Secret leakage | Add to `.gitignore` + regenerate secrets |
@@ -159,7 +197,7 @@ If any [ ] is empty → fix before commit!
 
 | Path | สถานะ | หมายเหตุ |
 |---|---|---|
-| `build/apps/{app}/` | ✅ มี | docker-platform, grafana-prometheus, n8n, nextcloud, odoo, wordpress |
+| `build/apps/{app}/` | ✅ มี | docker-platform, grafana-prometheus, n8n, nextcloud, odoo, woocommerce, wordpress |
 | `build/_app-catalog.md` | ✅ มี | |
 | `build/_guest-images.md` | ✅ มี | |
 | `build/templates/` | ⚠️ มีแต่ว่างเปล่า | ยังไม่มี template ไฟล์ |
@@ -179,10 +217,11 @@ If any [ ] is empty → fix before commit!
 ```text
 Key files to check dependencies:
 
-- agents/image-sleuth.md             ← นักสืบ (community research → review.md)
-- agents/image-engineer.md           ← วิศวกร (design → build guide + source)
-- agents/image-maker.md              ← ช่างทำ (build → verify → errors)
-- agents/image-scribe.md             ← นักทำเอกสาร (update docs → delete temp)
+- agents/aerith.md                  ← Aerith (community research → review.md)
+- agents/cid.md                     ← Cid (design → build guide + source)
+- agents/cloud.md                   ← Cloud (build → verify → errors)
+- agents/tifa.md                    ← Tifa (update docs → delete temp)
+- agents/nanaki.md                  ← Nanaki (standalone — user trigger)
 - docs/AGENT-SPEC.md                 ← Agent flow overview
 - docs/AGENTS.md                      ← Common rules (all agents)
 - build/_app-catalog.md               ← App status (dependency point #2)
@@ -193,6 +232,6 @@ Key files to check dependencies:
 
 ---
 
-**Version:** 2026-06-14
+**Version:** 2026-06-16
 **Purpose:** Help AI + users track which files must be updated together  
 **Use:** Before every commit, consult this document
