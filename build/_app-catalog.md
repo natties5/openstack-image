@@ -30,7 +30,7 @@ Catalog นี้ใช้ข้อมูลที่ตรวจได้จร
 | **Nextcloud** | Collaboration / File Sharing | built เดิม แต่ source target เก่า | `build/apps/nextcloud/` | source ใช้ `nextcloud:30.0-apache` | Nextcloud 34.0.0 | Nextcloud Apache + PostgreSQL + Redis + Nginx | 2 vCPU / 2 GB / 20 GB | Sync source เป็น target ใหม่ก่อน rebuild |
 | **Odoo** | Business / ERP / CRM | พร้อม build | `build/apps/odoo/` | `odoo:18.0` + PostgreSQL + Nginx | Odoo 19 stable/recommended ต้อง verify จาก official docs ก่อนเปลี่ยน target | Python/Odoo + PostgreSQL + Nginx | 2 vCPU / 2-4 GB / 20 GB | ใช้ Odoo 18 guide ต่อ หรือทำ review ก่อน upgrade เป็น 19 |
 | **Docker Platform** | DevOps / Platform | พร้อม build | `build/apps/docker-platform/` | Docker CE + Portainer + Nginx Proxy Manager | Portainer 2.39.3 LTS; Nginx Proxy Manager 2.15.1 | Docker CE + Portainer + NPM | 1 vCPU / 2 GB / 15 GB | Verify image tags/pins แล้ว build |
-| **Grafana+Prometheus** | Monitoring / Analytics | built: standalone | `build/apps/grafana-prometheus/` | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | Capture/Glance ตาม admin workflow |
+| **Grafana+Prometheus** | Monitoring / Analytics | built: standalone; post-test PASS; cleanup-ready | `build/apps/grafana-prometheus/` | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | Capture/Glance ตาม admin workflow |
 | **n8n** | Automation / AI no-GPU | รอเติม source | `build/apps/n8n/` | skeleton guide only | n8n 2.25.7 | Node.js + PostgreSQL + Nginx | 1-2 vCPU / 2 GB / 10 GB | สร้าง source files ให้ครบก่อน build |
 
 ---
@@ -110,7 +110,7 @@ Catalog นี้ใช้ข้อมูลที่ตรวจได้จร
 
 | App | Purpose | Repo Status | Image Target | Upstream Signal | Stack | Minimum Size | Next Action |
 |---|---|---|---|---|---|---|---|
-| **Grafana+Prometheus** | VM / website / service monitoring | built: standalone | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | Capture/Glance ตาม admin workflow |
+| **Grafana+Prometheus** | VM / website / service monitoring | built: standalone; post-test PASS; cleanup-ready | guide/source เดิม | Grafana 13.0.2; Prometheus 3.12.0 | Grafana + Prometheus + Alertmanager + Exporters | 2 vCPU / 2 GB / 15 GB | Capture/Glance ตาม admin workflow |
 | **Umami** | Privacy-friendly web analytics | candidate | ยังไม่มี source | Umami 3.1.0 | Node.js + PostgreSQL | 1 vCPU / 1-2 GB / 10 GB | ทำ review + source |
 | **Uptime Kuma** | Uptime monitoring + alerts | wishlist | ยังไม่มี source | ต้อง verify | Node.js + SQLite | 1 vCPU / 512 MB / 5 GB | Research later |
 | **Plausible** | Web analytics | wishlist | ยังไม่มี source | ต้อง verify | Elixir + PostgreSQL + ClickHouse | 2 vCPU / 2-4 GB / 20 GB | Research later |

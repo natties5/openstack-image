@@ -240,7 +240,7 @@ Trigger: user/admin สร้าง VM ใหม่จาก image แล้ว�
 | Base OS | Ubuntu 26.04 |
 | Docker images | `grafana/grafana:latest`, `prom/prometheus:latest`, `prom/alertmanager:latest`, `prom/node-exporter:latest`, `prom/blackbox-exporter:latest`, `nginx:stable-alpine`, optional `gcr.io/cadvisor/cadvisor:latest` |
 | Minimum flavor | 2 vCPU / 2GB RAM / 15GB disk |
-| Special notes | Self-service VM / Website / Service monitoring, first boot random Grafana password, `monitoring-reset-grafana-password`, file_sd target helpers, public only Nginx TCP 80, Prometheus/Alertmanager localhost only, no provider discovery/log/tracing stack |
+| Special notes | Self-service VM / Website / Service monitoring, first boot random Grafana password, `monitoring-reset-grafana-password`, file_sd target helpers, public only Nginx TCP 80, Prometheus/Alertmanager localhost only, no provider discovery/log/tracing stack; post-test PASS and cleanup-ready on 2026-06-16, reboot final gate not run |
 
 **Deploy + post-test only:** OpenStack capture/Glance/server ID/image ID เป็นงานของ user/admin ภายนอก pipeline นี้ ห้ามบันทึกค่าเหล่านั้นลง docs กลาง
 

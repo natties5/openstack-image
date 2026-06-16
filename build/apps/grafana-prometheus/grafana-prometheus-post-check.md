@@ -33,7 +33,7 @@ Post-check นี้ทดสอบ pipeline หลังจาก user/admin �
 |---|---|---|---|---|---|
 | 1 | Console/MOTD UX | MOTD run-parts | `run-parts /etc/update-motd.d` | ไม่มี error และเห็น Grafana MOTD | แก้ MOTD source/line ending/permission |
 | 2 | First boot bootstrap | bootstrap service | `systemctl status grafana-prometheus-bootstrap.service` | enabled และ completed สำเร็จ | แก้ bootstrap service/script หรือ build guide |
-| 3 | Runtime state | `.env`, README, marker | `test -f ...` | runtime files มีครบ | แก้ first boot script/source |
+| 3 | Runtime state | `.env`, README, marker | `test -f ...` + `grep Password` | runtime files มีครบและ README มี password | แก้ first boot script/source |
 | 4 | Container runtime | 6 containers หลัก | `docker compose ... ps` | containers หลัก running | ดู container logs แล้วแก้ compose/config/source |
 | 5 | Health check | local endpoints | `curl 127.0.0.1` ports 80/9090/9093 | Grafana/Prometheus/Alertmanager OK | แก้ service config หรือ readiness logic |
 | 6 | Exposure/security | public vs localhost bind | `ss -lntp` | public เฉพาะ TCP 80, 9090/9093 localhost | แก้ compose ports/proxy config ทันที |
@@ -53,7 +53,7 @@ Post-check นี้ทดสอบ pipeline หลังจาก user/admin �
 | อาการ | นับเป็น bug ไหม | ส่งผลต่อ pipeline | Action |
 |---|---|---|---|
 | service disabled หรือ bootstrap exit non-zero | ใช่ | First boot pipeline | แก้ bootstrap service/script และ build guide |
-| `.env`/README/marker ไม่เกิด | ใช่ | First boot runtime state | แก้ bootstrap script |
+| `.env`/README/marker ไม่เกิด หรือ README ไม่มี `Password:` | ใช่ | First boot runtime state | แก้ bootstrap script |
 | image ต้อง pull ใหม่ตอน first boot | ใช่ | Golden image pre-pull/pre-capture | แก้ build guide และ pre-capture gate |
 | container restart loop | ใช่ | Runtime stack | ดู logs แล้วแก้ compose/config/source |
 | `9090` หรือ `9093` bind public | ใช่ | Exposure/security | แก้ compose ports ทันที |
@@ -111,13 +111,19 @@ systemctl status grafana-prometheus-bootstrap.service --no-pager
 ```bash
 test -f /opt/monitoring/.env && echo env-ok
 test -f /root/README-grafana-prometheus-image.txt && echo info-ok
+grep -q '^  Password: ' /root/README-grafana-prometheus-image.txt && echo info-password-ok
+test "$(stat -c '%a' /root/README-grafana-prometheus-image.txt)" = "600" && echo info-permission-ok
 test -f /var/lib/grafana-prometheus-firstboot.done && echo marker-ok
 ```
 
 ต้องได้:
 - `env-ok`
 - `info-ok`
+- `info-password-ok`
+- `info-permission-ok`
 - `marker-ok`
+
+ถ้า marker มีแล้วแต่ README หายหรือไม่มี `Password:` ให้สงสัย bootstrap idempotency: service รอบถัดไปต้อง repair README จาก `/opt/monitoring/.env` โดยไม่ reset password และไม่ลบ Docker volumes.
 
 ### 4. Containers running
 
@@ -322,6 +328,15 @@ test "$before_targets" = "$after_targets" && echo targets-preserved-after-reboot
 | Reboot final gate | ถ้า user/admin อนุมัติ reboot: state/password/targets ต้องอยู่หลัง reboot | ข้ามได้ถ้า user/admin ไม่อนุมัติ |
 
 ผ่านทุกข้อ = deploy ใช้งานได้จริง
+
+### Latest Verified Result
+
+| Date | Scope | Result | Notes |
+|---|---|---|---|
+| 2026-06-16 | Full post-test except reboot final gate | PASS | `no-cleanup` mode, target helpers PASS, password reset PASS, old password rejected, targets preserved, cAdvisor `down` treated as expected optional exception |
+| 2026-06-16 | Golden-image cleanup after post-test | PASS | runtime `.env`, README, marker, bootstrap log, containers, and monitoring volumes removed; bootstrap service still enabled; package cache kept |
+
+Reboot persistence gate was explicitly skipped by user/admin. Do not mark reboot persistence as tested for this run.
 
 ---
 

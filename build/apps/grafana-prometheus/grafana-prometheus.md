@@ -228,8 +228,8 @@ systemctl enable grafana-prometheus-bootstrap.service
 
 ```bash
 docker compose -f /opt/monitoring/docker-compose.yml config >/tmp/grafana-prometheus-compose.yml
-docker run --rm -v /opt/monitoring/prometheus:/etc/prometheus:ro prom/prometheus:latest promtool check config /etc/prometheus/prometheus.yml
-docker run --rm -v /opt/monitoring/prometheus/rules:/rules:ro prom/prometheus:latest promtool check rules /rules/alerts.yml
+docker run --rm --entrypoint promtool -v /opt/monitoring/prometheus:/etc/prometheus:ro prom/prometheus:latest check config /etc/prometheus/prometheus.yml
+docker run --rm --entrypoint promtool -v /opt/monitoring/prometheus/rules:/rules:ro prom/prometheus:latest check rules /rules/alerts.yml
 ```
 
 ### 7. Pre-pull images
@@ -331,6 +331,7 @@ sudo monitoring-info
 | target ขึ้น DOWN | `sudo monitoring-list-targets` และ Prometheus Targets UI | ตรวจ IP/URL/port/firewall |
 | node metrics ไม่มา | target VM มี node_exporter ไหม | เปิด TCP 9100 จาก monitoring VM ไป target |
 | reset password ไม่ได้ | `docker ps`, `docker logs grafana` | ตรวจ Grafana container running |
+| `/root/README-grafana-prometheus-image.txt` หายหรือไม่มี password | `grep '^  Password: ' /root/README-grafana-prometheus-image.txt` และ `systemctl status grafana-prometheus-bootstrap.service` | restart bootstrap service เพื่อ repair README จาก `/opt/monitoring/.env` โดยไม่ reset password |
 | disk ใกล้เต็ม | `df -h`, Prometheus data volume | ลด retention หรือเพิ่ม disk |
 
 ---
@@ -349,5 +350,11 @@ Cloud ต้อง verify:
 Deploy/post-test references:
 - Deploy guide: `build/apps/grafana-prometheus/grafana-prometheus-deploy.md`
 - Post-check: `build/apps/grafana-prometheus/grafana-prometheus-post-check.md`
+
+Latest verified result:
+- 2026-06-16 post-test PASS for full non-reboot scope: bootstrap, runtime README/password, containers, health, exposure, helper commands, target helpers, password reset, datasource/dashboard, and Prometheus targets.
+- cAdvisor target `down` is expected when the optional profile is not enabled.
+- Golden-image cleanup PASS: runtime `.env`, README, marker, bootstrap log, containers, and monitoring volumes removed; bootstrap service remains enabled; package cache kept.
+- Reboot persistence gate was not run in this verification.
 
 OpenStack capture/Glance/server ID/image ID อยู่นอกขอบเขต guide นี้ ให้ user/admin จัดการเอง และห้ามบันทึกค่าจริงลง repo.

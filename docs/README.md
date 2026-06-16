@@ -94,7 +94,7 @@ openstack-image/
 | **Nextcloud** | File sync — PostgreSQL + Redis + Nginx | `build/apps/nextcloud/` | ⚠️ built เดิม แต่ source target เก่า ต้อง sync/rebuild |
 | **Odoo** | ERP/CRM — PostgreSQL + Odoo 18 guide | `build/apps/odoo/` | ✅ พร้อม build; optional Odoo 19 review |
 | **Docker Platform** | DevOps platform — Docker CE + Portainer + Nginx Proxy Manager | `build/apps/docker-platform/` | ✅ พร้อม build |
-| **Grafana+Prometheus** | Monitoring — VM / Website / Service monitoring | `build/apps/grafana-prometheus/` | ✅ built standalone; พร้อม capture/Glance ตาม admin workflow |
+| **Grafana+Prometheus** | Monitoring — VM / Website / Service monitoring | `build/apps/grafana-prometheus/` | ✅ built standalone; post-test PASS; cleanup-ready; พร้อม capture/Glance ตาม admin workflow |
 | **n8n** | Workflow automation — PostgreSQL + Nginx | `build/apps/n8n/` | ❌ รอเติม source |
 | **Candidate images** | แยกหมวดใน catalog เช่น Vaultwarden, AnythingLLM, Umami, Chatwoot, NocoDB | `build/_app-catalog.md` | 🧭 ยังไม่มี source ต้องทำ review/source ก่อน build |
 

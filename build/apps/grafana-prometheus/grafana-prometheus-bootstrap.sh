@@ -17,6 +17,13 @@ get_primary_ip() {
   hostname -I 2>/dev/null | awk '{print $1}'
 }
 
+read_env_password() {
+  if [ ! -f "$ENV_FILE" ]; then
+    return 1
+  fi
+  awk -F= '$1 == "GRAFANA_ADMIN_PASSWORD" {sub(/^[^=]*=/, ""); print; exit}' "$ENV_FILE"
+}
+
 wait_http() {
   local url="$1"
   local name="$2"
@@ -156,6 +163,15 @@ if [ -e "$MARKER" ]; then
   echo "Bootstrap already completed; ensuring monitoring services are running"
   systemctl enable --now docker
   docker compose -f "$APP_DIR/docker-compose.yml" --env-file "$ENV_FILE" up -d
+  if [ ! -s "$INFO_FILE" ] || ! grep -q '^  Password: ' "$INFO_FILE"; then
+    EXISTING_GRAFANA_ADMIN_PASSWORD="$(read_env_password || true)"
+    if [ -n "$EXISTING_GRAFANA_ADMIN_PASSWORD" ]; then
+      write_info_file "$(get_primary_ip)" "$EXISTING_GRAFANA_ADMIN_PASSWORD"
+      echo "Info file repaired at $INFO_FILE"
+    else
+      echo "WARNING: cannot repair $INFO_FILE because $ENV_FILE has no GRAFANA_ADMIN_PASSWORD"
+    fi
+  fi
   exit 0
 fi
 
